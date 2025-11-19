@@ -1,51 +1,63 @@
-let latestCommands: { [key: string]: number } = {}
+//% color=#f68420 icon="\uf1eb" block="Controller"
+namespace vcController {
+    bluetooth.onBluetoothConnected(function () {
 
-let servoLimit = 30;
+    })
+    bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+        command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+        commadParts = command.split("=")
+        latestCommands[commadParts[0]] = parseFloat(commadParts[1])
+    })
+    let commadParts: string[] = []
+    let command = ""
+    let latestCommands: { [key: string]: number } = {}
+    let servoLimit = 30
+    basic.clearScreen()
+    bluetooth.startUartService()
 
-basic.clearScreen()
+    let commandName: string;
+    let commandValue: number;
 
-bluetooth.startUartService()
-
-bluetooth.onBluetoothConnected(function () {
-})
-
-bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-    let command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
-    let commadParts = command.split("=")
-
-    latestCommands[commadParts[0]] = parseFloat(commadParts[1])
-})
-
-basic.forever(function () {
-    while (Object.keys(latestCommands).length) {
-        let commandName = Object.keys(latestCommands)[0]
-        let commandValue = latestCommands[commandName]
-        delete latestCommands[commandName];
-
-        if (commandName == "-v") {
-
-        } else if (commandName == "oy" || commandName == "sl" || commandName == "jry") {
-
-        } else if (commandName == "ox" || commandName == "sr" || commandName == "jrx") {
-
-        }
+    /**
+     * Returns command name.
+     */
+    //% blockId=vc_command_name
+    //% block="command name"
+    //% weight=50
+    export function getCommandName() {
+        return commandName
     }
-})
 
+    /**
+     * Returns command value.
+     */
+    //% blockId=vc_command_value
+    //% block="command value"
+    //% weight=50
+    export function getCommandValue() {
+        return commandValue
+    }
 
-/**
- * Do something when a specific state of buttons on the PF remote control is achieved.
- * @param channel the channel switch 0-3
- * @param red the red output button
- * @param blue the blue output button
- * @param action the trigger action
- * @param handler body code to run when the event is raised
- */
-//% blockId=pfReceiver_infrared_on_rc_command
-//% block="on RC command : channel %channel | red %red | blue %blue | action %action"
-//% weight=95
-export function onRCcommand(
-    handler: () => void
-) {
-    handler();
+    //% blockId="vc_on_command"
+    //% block="On command received"
+    export function onVCcommand(
+        handler: () => void
+    ) {
+        basic.forever(function () {
+            while (Object.keys(latestCommands).length) {
+                commandName = Object.keys(latestCommands)[0]
+                commandValue = latestCommands[commandName]
+                delete latestCommands[commandName];
+
+                // if (commandName == "-v") {
+
+                // } else if (commandName == "oy" || commandName == "sl" || commandName == "jry") {
+
+                // } else if (commandName == "ox" || commandName == "sr" || commandName == "jrx") {
+
+                // }
+                handler()
+            }
+        })
+    }
 }

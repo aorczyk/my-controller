@@ -1,5 +1,5 @@
 {
-    "name": "VC Extension",
+    "name": "VC Extension - Copy",
     "description": "",
     "dependencies": {
         "core": "*",
@@ -21,5 +21,6 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "tsprj"
+    "preferredEditor": "tsprj",
+    "languageRestriction": "javascript-only"
 }
