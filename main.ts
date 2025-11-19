@@ -1,22 +1,18 @@
 //% color=#f68420 icon="\uf11b" block="Controller"
 namespace vcController {
-    bluetooth.onBluetoothConnected(function () {
+    let commadParts: string[] = []
+    let command: string;
+    let latestCommands: { [key: string]: number } = {}
+    let commandName: string;
+    let commandValue: number;
 
-    })
+    bluetooth.startUartService()
+
     bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
         commadParts = command.split("=")
         latestCommands[commadParts[0]] = parseFloat(commadParts[1])
     })
-    let commadParts: string[] = []
-    let command = ""
-    let latestCommands: { [key: string]: number } = {}
-    let servoLimit = 30
-    basic.clearScreen()
-    bluetooth.startUartService()
-
-    let commandName: string;
-    let commandValue: number;
 
     /**
      * Returns command name.
