@@ -1,4 +1,4 @@
-//% color=#3c4043 icon="\uf11b" block="Controller"
+//% color=#485fc7 icon="\uf11b" block="Controller"
 namespace vcController {
     let latestCommands: { [key: string]: number } = {}
     let commandName: string;
