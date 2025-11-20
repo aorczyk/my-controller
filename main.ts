@@ -1,8 +1,32 @@
-const enum InputName {
+// const enum InputName {
+//     //% block="Right Arrows"
+//     RightArrows = 1,
+//     //% block="Right Slider"
+//     RightSlider = 2,
+//     //% block="Right Joystick"
+//     RightJoystick = 3,
+//     //% block="Left Arrows"
+//     LeftArrows = -1,
+//     //% block="Left Slider"
+//     LeftSlider = -2,
+//     //% block="Left Joystick"
+//     LeftJoystick = -3,
+// }
+
+enum InputName {
+    //% block="Right Arrows"
+    RightArrows = "ar",
     //% block="Right Slider"
-    RightSlider = 0,
+    RightSlider = "sr",
+    //% block="Right Joystick"
+    RightJoystick = "jr",
+
+    //% block="Left Arrows"
+    LeftArrows = "al",
     //% block="Left Slider"
-    LeftSlider = 1,
+    LeftSlider = "sl",
+    //% block="Left Joystick"
+    LeftJoystick = "jl",
 }
 
 //% color=#485fc7 icon="\uf11b" block="Controller"
@@ -49,11 +73,7 @@ namespace vcController {
     //% block="input: %inputName"
     //% weight=50
     export function setCommandName(inputName: InputName) {
-        let inputMap = {
-            0: 'sr',
-            1: 'sl',
-        }
-        return commandName == inputMap[inputName]
+        return commandName == inputName
     }
 
     //% blockId="vc_on_command"
