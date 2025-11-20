@@ -1,3 +1,10 @@
+const enum InputName {
+    //% block="Right Slider"
+    RightSlider = 0,
+    //% block="Left Slider"
+    LeftSlider = 1,
+}
+
 //% color=#485fc7 icon="\uf11b" block="Controller"
 namespace vcController {
     let latestCommands: { [key: string]: number } = {}
@@ -34,12 +41,6 @@ namespace vcController {
         return commandValue
     }
 
-    const enum InputName {
-        //% block="Right Slider"
-        RightSlider = 0,
-        //% block="Left Slider"
-        LeftSlider = 1,
-    }
 
     /**
      * Returns selected command name.
