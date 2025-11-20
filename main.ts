@@ -43,17 +43,17 @@ namespace vcController {
 
     /**
      * Returns selected command name.
-     * @param inputName the PF receiver output, eg: PfOutput.Red
+     * @param input the Controller input
      */
     //% blockId=vc_set_command_name
-    //% block="input: %inputName"
+    //% block="input: %input"
     //% weight=50
-    export function setCommandName(inputName: InputName) {
+    export function setCommandName(input: InputName) {
         let inputMap = {
             0: 'sr',
             1: 'sl',
         }
-        return commandName == inputMap[inputName]
+        return commandName == inputMap[input]
     }
 
     //% blockId="vc_on_command"
