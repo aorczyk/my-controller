@@ -43,17 +43,16 @@ namespace vcController {
 
     /**
      * Returns selected command name.
-     * @param input the Controller input
      */
     //% blockId=vc_set_command_name
-    //% block="input: %input"
+    //% block="input: %inputName"
     //% weight=50
-    export function setCommandName(input: InputName) {
+    export function setCommandName(inputName: InputName) {
         let inputMap = {
             0: 'sr',
             1: 'sl',
         }
-        return commandName == inputMap[input]
+        return commandName == inputMap[inputName]
     }
 
     //% blockId="vc_on_command"
