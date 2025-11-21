@@ -1,3 +1,27 @@
+const enum KeyCode {
+    //% block="Arrow Up"
+    ArrowUp = 1,
+    //% block="Arrow Down"
+    ArrowDown = 2,
+    //% block="Arrow Right"
+    ArrowRight = 3,
+    //% block="Arrow Left"
+    ArrowLeft = 4,
+    //% block="Enter"
+    Enter = 5,
+    //% block="Space"
+    Space = 6,
+}
+
+const KeyCodeLabel: { [n: number]: string } = {
+    [KeyCode.ArrowUp]: "up",
+    [KeyCode.ArrowDown]: "down",
+    [KeyCode.ArrowRight]: "right",
+    [KeyCode.ArrowLeft]: "left",
+    [KeyCode.Enter]: "enter",
+    [KeyCode.Space]: "space",
+}
+
 const enum InputName {
     //% block="Right Arrows"
     RightArrows = 1,
@@ -221,4 +245,14 @@ namespace vcController {
     }
 
     // "[Enter] key code"
+
+    /**
+     * Key code value.
+     */
+    //% blockId=vc_key_code_value
+    //% block="%keyCode key code"
+    //% weight=50
+    export function getKeyCodeValue(keyCode: KeyCode) {
+        return KeyCodeLabel[keyCode]
+    }
 }
