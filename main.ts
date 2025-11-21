@@ -136,7 +136,7 @@ namespace vcController {
      * Returns true if all keys are released.
      */
     //% blockId=vc_are_all_keys_released
-    //% block="%keyCode is %keyState"
+    //% block="all keys released"
     //% weight=88
     export function areAllKeysReleased() {
         return commandName == 'none'
