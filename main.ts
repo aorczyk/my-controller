@@ -133,7 +133,7 @@ namespace vcController {
     }
 
     /**
-     * Check command comes from slider.
+     * True if the command comes from the slider.
      */
     //% blockId=vc_is_slider
     //% block="%InputSide slider"
@@ -157,7 +157,7 @@ namespace vcController {
     }
 
     /**
-     * Check command comes from joystick.
+     * True if the command comes from the joystick.
      */
     //% blockId=vc_is_joystick
     //% block="%InputSide joystick %InputDirection direction"
