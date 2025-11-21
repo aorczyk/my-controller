@@ -43,6 +43,15 @@ namespace vcController {
     let commandName: string;
     let commandValue: number;
 
+    let rightSliderValue: number;
+    let leftSliderValue: number;
+
+    let rightJoystickValueX: number;
+    let rightJoystickValueY: number;
+
+    let leftJoystickValueX: number;
+    let leftJoystickValueY: number;
+
     bluetooth.startUartService()
 
     bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
@@ -63,6 +72,22 @@ namespace vcController {
                 commandName = Object.keys(latestCommands)[0]
                 commandValue = latestCommands[commandName]
                 delete latestCommands[commandName];
+
+                if (commandName == "sr") {
+                    rightSliderValue = commandValue
+                }
+
+                if (commandName == "sl") {
+                    leftSliderValue = commandValue
+                }
+
+                if (commandName == "jrx") {
+                    rightJoystickValueX = commandValue
+                }
+
+                if (commandName == "jry") {
+                    rightJoystickValueY = commandValue
+                }
 
                 // if (commandName == "-v") {
 
@@ -91,13 +116,37 @@ namespace vcController {
     }
 
     /**
-     * Returns command value.
+     * Right slider value.
+     */
+    //% blockId=vc_right_slider_value
+    //% block="right slider value"
+    //% weight=50
+    export function getRightSliderValue() {
+        return rightSliderValue
+    }
+
+    /**
+     * Left slider value.
+     */
+    //% blockId=vc_left_slider_value
+    //% block="left slider value"
+    //% weight=50
+    export function getLeftSliderValue() {
+        return leftSliderValue
+    }
+
+    /**
+     * Slider value.
      */
     //% blockId=vc_slider_value
-    //% block="slider value"
+    //% block="%InputSide slider value"
     //% weight=50
-    export function getSliderValue() {
-        return commandValue
+    export function getSliderValue(inputSide: InputSide) {
+        if (inputSide == 1) {
+            return rightSliderValue
+        } else {
+            return leftSliderValue
+        }
     }
 
     /**
