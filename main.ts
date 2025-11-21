@@ -23,6 +23,13 @@ const InputNameLabel: { [n: number]: string } = {
     [InputName.LeftJoystick]: "jl",
 };
 
+const enum InputSide {
+    //% block="right"
+    Right = 1,
+    //% block="left"
+    Left = 2,
+}
+
 //% color=#485fc7 icon="\uf11b" block="Controller"
 namespace vcController {
     let latestCommands: { [key: string]: number } = {}
@@ -59,6 +66,16 @@ namespace vcController {
         return commandValue
     }
 
+    /**
+     * Returns command value.
+     */
+    //% blockId=vc_slider_value
+    //% block="slider value"
+    //% weight=50
+    export function getSliderValue() {
+        return commandValue
+    }
+
 
     /**
      * Returns selected command name.
@@ -91,5 +108,19 @@ namespace vcController {
                 handler()
             }
         })
+    }
+
+    /**
+     * Check command comes from slider.
+     */
+    //% blockId=vc_is_slider
+    //% block="is slider on the %InputSide"
+    //% weight=50
+    export function isSlider(inputSide: InputSide) {
+        let sideMap = {
+            1: 'sl',
+            2: 'sr'
+        }
+        return commandName == sideMap[inputSide]
     }
 }
