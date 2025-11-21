@@ -216,6 +216,6 @@ namespace vcController {
     //% block="%keyCode key %keyState"
     //% weight=50
     export function isKey(keyCode: string, keyState: KeyState) {
-        return commandName == (keyState ? '' : '!') + keyCode
+        return commandName == (keyState ? '' : '!') + keyCode.toLowerCase()
     }
 }
