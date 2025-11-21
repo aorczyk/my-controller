@@ -137,7 +137,7 @@ namespace vcController {
      * Check command comes from slider.
      */
     //% blockId=vc_is_slider
-    //% block="slider on the %InputSide"
+    //% block="%InputSide slider"
     //% weight=50
     export function isSlider(inputSide: InputSide) {
         let sideMap = {
@@ -165,20 +165,15 @@ namespace vcController {
      * Check command comes from joystick.
      */
     //% blockId=vc_is_joystick
-    //% block="joystick on the %InputSide direction %InputDirection"
+    //% block="%InputSide joystick"
     //% weight=50
-    export function isJoystick(inputSide: InputSide, inputDirection: InputDirection) {
+    export function isJoystick(inputSide: InputSide) {
         let sideMap = {
             1: 'jr',
             2: 'jl'
         }
 
-        let directionMap = {
-            1: 'x',
-            2: 'y'
-        }
-
-        return commandName == sideMap[inputSide] + directionMap[inputDirection]
+        return commandName == sideMap[inputSide] + 'x' || commandName == sideMap[inputSide] + 'y'
     }
 
     /**
