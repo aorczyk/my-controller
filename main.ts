@@ -137,7 +137,7 @@ namespace vcController {
      */
     //% blockId=vc_key_code_value
     //% block="code of %keyCode key"
-    //% weight=88
+    //% weight=87
     // export function getKeyCodeValue(keyCode: KeyCode) {
     //     return KeyCodeLabel[keyCode]
     // }
