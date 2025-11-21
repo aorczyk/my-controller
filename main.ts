@@ -123,14 +123,24 @@ namespace vcController {
     }
 
     /**
+     * Checks whether the selected key is in the chosen state.
+     */
+    //% blockId=vc_is_special_key
+    //% block="%keyCode key %keyState"
+    //% weight=88
+    export function isSpecialKey(keyCode: KeyCode, keyState: KeyState) {
+        return commandName == (keyState ? '' : '!') + KeyCodeLabel[keyCode]
+    }
+
+    /**
      * Key code value.
      */
     //% blockId=vc_key_code_value
     //% block="code of %keyCode key"
     //% weight=88
-    export function getKeyCodeValue(keyCode: KeyCode) {
-        return KeyCodeLabel[keyCode]
-    }
+    // export function getKeyCodeValue(keyCode: KeyCode) {
+    //     return KeyCodeLabel[keyCode]
+    // }
 
     /**
      * True if the command comes from the slider.
