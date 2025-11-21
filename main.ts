@@ -57,7 +57,7 @@ const enum InputSide {
 const enum InputDirection {
     //% block="X"
     x = 1,
-    //% block="X"
+    //% block="Y"
     y = 2,
 }
 
