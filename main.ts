@@ -75,12 +75,13 @@ namespace vcController {
         latestCommands[commadParts[0]] = parseFloat(commadParts[1])
     })
 
+
     /**
      * Runs the code inside when a command is received.
      */
     //% blockId="vc_on_command"
     //% block="On command received"
-    //% weight=90
+    //% weight=92
     export function onVCcommand(
         handler: () => void
     ) {
@@ -129,6 +130,26 @@ namespace vcController {
                 handler()
             }
         })
+    }
+
+    /**
+     * Command name.
+     */
+    //% blockId=vc_command_name
+    //% block="command name"
+    //% weight=91
+    export function getCommandName() {
+        return commandName
+    }
+
+    /**
+     * Command value.
+     */
+    //% blockId=vc_command_value
+    //% block="command value"
+    //% weight=90
+    export function getCommandValue() {
+        return commandValue
     }
 
     /**
@@ -201,7 +222,7 @@ namespace vcController {
      * True if the command comes from the joystick.
      */
     //% blockId=vc_is_joystick
-    //% block="%InputSide joystick %InputDirection direction"
+    //% block="%InputSide joystick %InputDirection changed"
     //% weight=69
     export function isJoystick(inputSide: InputSide, inputDirection: InputDirection) {
         return commandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
@@ -227,26 +248,6 @@ namespace vcController {
                 return leftJoystickValueY
             }
         }
-    }
-
-    /**
-     * Command name.
-     */
-    //% blockId=vc_command_name
-    //% block="command name"
-    //% weight=59
-    export function getCommandName() {
-        return commandName
-    }
-
-    /**
-     * Command value.
-     */
-    //% blockId=vc_command_value
-    //% block="command value"
-    //% weight=58
-    export function getCommandValue() {
-        return commandValue
     }
 
     /**
