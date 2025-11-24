@@ -213,7 +213,7 @@ namespace vcController {
      * True if the command comes from the slider.
      */
     //% blockId=vc_is_slider
-    //% block="%InputSide slider changed"
+    //% block="\uf1de %InputSide slider changed"
     //% weight=79
     export function isSlider(inputSide: InputSide) {
         return commandName == (inputSide == 1 ? 'sr' : 'sl')
