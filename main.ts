@@ -58,7 +58,13 @@ namespace vcController {
     let leftJoystickValueX: number;
     let leftJoystickValueY: number;
 
+    let pressedKeys: string[] = [];
+
     bluetooth.startUartService()
+
+    bluetooth.onBluetoothConnected(() => {
+        pressedKeys = []
+    })
 
     bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         let commadParts: string[] = []
@@ -82,6 +88,14 @@ namespace vcController {
                 commandName = Object.keys(latestCommands)[0]
                 commandValue = latestCommands[commandName]
                 delete latestCommands[commandName];
+
+                if (!commandName.includes(';')) {
+                    if (commandName[0] == '!') {
+                        pressedKeys.splice(pressedKeys.indexOf(commandName), 1)
+                    } else {
+                        pressedKeys.push(commandName)
+                    }
+                }
 
                 if (commandName == "sr") {
                     rightSliderValue = commandValue
@@ -120,6 +134,8 @@ namespace vcController {
     //% weight=89
     export function isKey(keyCode: string, keyState: KeyState) {
         return commandName == (keyState ? '' : '!') + keyCode.toLowerCase()
+        let code = keyCode.toLowerCase();
+        return keyState ? pressedKeys.indexOf(code) != -1 : commandName == '!' + code
     }
 
     /**
@@ -129,7 +145,7 @@ namespace vcController {
     //% block="%keyCode is %keyState"
     //% weight=88
     export function isSpecialKey(keyCode: KeyCode, keyState: KeyState) {
-        return commandName == (keyState ? '' : '!') + KeyCodeLabel[keyCode]
+        return isKey(KeyCodeLabel[keyCode], keyState)
     }
 
     /**
@@ -148,9 +164,9 @@ namespace vcController {
     //% blockId=vc_key_code_value
     //% block="code of %keyCode key"
     //% weight=86
-    // export function getKeyCodeValue(keyCode: KeyCode) {
-    //     return KeyCodeLabel[keyCode]
-    // }
+    export function getKeyCodeValue(keyCode: KeyCode) {
+        return KeyCodeLabel[keyCode]
+    }
 
     /**
      * True if the command comes from the slider.
