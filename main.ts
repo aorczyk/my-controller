@@ -29,11 +29,22 @@ const enum InputSide {
     Left = 2,
 }
 
-const enum InputDirection {
+const enum JoystickDirection {
     //% block="X"
     x = 1,
     //% block="Y"
     y = 2,
+}
+
+const enum InputOrientaton {
+    //% block="X"
+    x = 1,
+    //% block="Y"
+    y = 2,
+    //% block="Z"
+    z = 3,
+    //% block="Compass"
+    c = 4,
 }
 
 const enum KeyState {
@@ -48,18 +59,22 @@ namespace vcController {
     let latestCommands: { [key: string]: number } = {}
     let commandName: string;
     let commandValue: number;
+    let pressedKeys: string[] = [];
+    let setup = () => { };
 
     let rightSliderValue: number;
     let leftSliderValue: number;
 
-    let rightJoystickValueX: number;
-    let rightJoystickValueY: number;
+    let rightJoystickXvalue: number;
+    let rightJoystickYvalue: number;
 
-    let leftJoystickValueX: number;
-    let leftJoystickValueY: number;
+    let leftJoystickXvalue: number;
+    let leftJoystickYvalue: number;
 
-    let pressedKeys: string[] = [];
-    let setup = () => {};
+    let orientationXvalue: number;
+    let orientationYvalue: number;
+    let orientationZvalue: number;
+    let orientationCompassValue: number;
 
     bluetooth.startUartService()
 
@@ -80,7 +95,7 @@ namespace vcController {
      * Runs the code inside when a command is received.
      */
     //% blockId="vc_on_command"
-    //% block="On command received"
+    //% block="on command received"
     //% weight=92
     export function onVCcommand(
         handler: () => void
@@ -112,19 +127,19 @@ namespace vcController {
                 }
 
                 if (commandName == "jrx") {
-                    rightJoystickValueX = commandValue
+                    rightJoystickXvalue = commandValue
                 }
 
                 if (commandName == "jry") {
-                    rightJoystickValueY = commandValue
+                    rightJoystickYvalue = commandValue
                 }
 
                 if (commandName == "jlx") {
-                    leftJoystickValueX = commandValue
+                    leftJoystickXvalue = commandValue
                 }
 
                 if (commandName == "jly") {
-                    leftJoystickValueY = commandValue
+                    leftJoystickYvalue = commandValue
                 }
 
                 handler()
@@ -222,9 +237,9 @@ namespace vcController {
      * True if the command comes from the joystick.
      */
     //% blockId=vc_is_joystick
-    //% block="%InputSide joystick %InputDirection changed"
+    //% block="%InputSide joystick %JoystickDirection changed"
     //% weight=69
-    export function isJoystick(inputSide: InputSide, inputDirection: InputDirection) {
+    export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
         return commandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
     }
 
@@ -232,23 +247,61 @@ namespace vcController {
      * Joystick value.
      */
     //% blockId=vc_joystick_value
-    //% block="%InputSide joystick %InputDirection value"
+    //% block="%InputSide joystick %JoystickDirection value"
     //% weight=68
-    export function getJoystickValue(inputSide: InputSide, inputDirection: InputDirection) {
+    export function getJoystickValue(inputSide: InputSide, inputDirection: JoystickDirection) {
         if (inputSide == 1) {
             if (inputDirection == 1) {
-                return rightJoystickValueX
+                return rightJoystickXvalue
             } else {
-                return rightJoystickValueY
+                return rightJoystickYvalue
             }
         } else {
             if (inputDirection == 1) {
-                return leftJoystickValueX
+                return leftJoystickXvalue
             } else {
-                return leftJoystickValueY
+                return leftJoystickYvalue
             }
         }
     }
+
+    /**
+     * True if the command comes from the accelerometer.
+     */
+    //% blockId=vc_is_orientation
+    //% block="orientation %InputOrientaton changed"
+    //% weight=67
+    export function isOrientation(inputOrient: InputOrientaton) {
+        let modes = {
+            1: 'ox',
+            2: 'oy',
+            3: 'oz',
+            4: 'oc',
+        }
+        return commandName == modes[inputOrient]
+    }
+
+    /**
+     * Orientation value.
+     */
+    //% blockId=vc_orientation_value
+    //% block="orientation %InputOrientaton value"
+    //% weight=66
+    export function getOrientationValue(inputOrient: InputOrientaton) {
+        switch(inputOrient) {
+            case 1:
+                return orientationXvalue;
+            case 2:
+                return orientationYvalue;
+            case 3:
+                return orientationZvalue;
+            case 4:
+                return orientationCompassValue;
+            default:
+                return 0;
+        }
+    }
+
 
     /**
      * Setup.
