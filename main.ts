@@ -106,8 +106,12 @@ namespace vcController {
                 commandValue = latestCommands[commandName]
                 delete latestCommands[commandName];
 
-                if (commandName == '-v') {
+                if (commandName == "-v") {
+                    bluetooth.uartWriteLine('vc;hasSettings;1;')
+                } else if (commandName == "getSettings") {
+                    bluetooth.uartWriteLine('vc;loader;1;')
                     setup()
+                    bluetooth.uartWriteLine('vc;loader;0;')
                 }
 
                 if (commandName.indexOf(';') == -1) {
@@ -306,11 +310,11 @@ namespace vcController {
      * Runs the code inside when the controller connects and sends the setup signal.
      */
     //% blockId="vc_setup"
-    //% block="setup | require confirmation %requireConfirmation"
+    //% block="setup"
     //% weight=50
     //% requireConfirmation.defl=false
     export function onVCsetup(
-        requireConfirmation: boolean,
+        // requireConfirmation: boolean,
         handler: () => void
     ) {
         setup = handler;
