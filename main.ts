@@ -341,4 +341,15 @@ namespace vcController {
             isOff();
         }
     }
+
+    //% blockId="vc_test"
+    //% block="jeśli %condition wtedy %thenBlock inaczej %elseBlock"
+    export function mojIfElse(
+        condition: boolean,
+        thenBlock: () => void,
+        elseBlock: () => void
+    ) {
+        if (condition) thenBlock()
+        else elseBlock()
+    }
 }
