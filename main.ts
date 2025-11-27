@@ -363,12 +363,12 @@ namespace vcController {
         keyCode: string,
         handler: () => void
     ) {
-        return () => {
+        (() => {
             if (isKey(keyCode, 1) && buttonStates[keyCode]) {
                 buttonStates[keyCode] = 0;
                 handler();
             }
-        }
+        })()
     }
 
     /**
