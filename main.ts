@@ -54,6 +54,19 @@ const enum KeyState {
     Released = 0,
 }
 
+const enum KeyColor {
+    //% block="black"
+    Black = 0,
+    //% block="green"
+    Green = 1,
+    //% block="blue"
+    Blue = 2,
+    //% block="yellow"
+    Yellow = 3,
+    //% block="red"
+    Red = 4,
+}
+
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace vcController {
     let latestCommands: { [key: string]: number } = {}
@@ -172,10 +185,10 @@ namespace vcController {
     }
 
     /**
-     * Returns true if the specified key is in the chosen state.
+     * Returns true if the specified button is in the chosen state.
      */
     //% blockId=vc_is_key
-    //% block="%keyCode key %keyState"
+    //% block="button %keyCode %keyState"
     //% weight=89
     export function isKey(keyCode: string, keyState: KeyState) {
         // return commandName == (keyState ? '' : '!') + keyCode.toLowerCase()
@@ -184,7 +197,7 @@ namespace vcController {
     }
 
     /**
-     * Returns true if the selected key is in the chosen state.
+     * Returns true if the selected button is in the chosen state.
      */
     //% blockId=vc_is_special_key
     //% block="%keyCode is %keyState"
@@ -194,10 +207,10 @@ namespace vcController {
     // }
 
     /**
-     * Returns the string code for the specified key.
+     * Returns the string code for the specified button.
      */
     //% blockId=vc_key_code_value
-    //% block="code of %keyCode key"
+    //% block="code of %keyCode button"
     //% weight=87
     export function getKeyCodeValue(keyCode: KeyCode) {
         return KeyCodeLabel[keyCode]
@@ -323,22 +336,50 @@ namespace vcController {
     let buttonStates: { [key: string]: number } = {}
 
     /**
-     * Runs the code inside when the controller connects and sends the setup signal.
+     * Runs the code inside when the button toggles on.
      */
-    //% blockId="vc_button_toggle"
-    //% block="button toggle %button"
+    //% blockId="vc_button_toggle_on"
+    //% block="button %button toggle on"
     //% weight=40
-    export function onVCbuttonToggle(
-        button: string,
-        isOff: () => void,
-        isOn: () => void
+    export function onVCbuttonToggleOn(
+        keyCode: string,
+        handler: () => void
     ) {
-        if (!buttonStates[button]) {
-            buttonStates[button] = 1;
-            isOn();
-        } else {
-            buttonStates[button] = 0;
-            isOff();
+        if (this.isKey(keyCode, 1) && !buttonStates[keyCode]) {
+            buttonStates[keyCode] = 1;
+            handler();
         }
     }
+
+    /**
+     * Runs the code inside when the button toggles off.
+     */
+    //% blockId="vc_button_toggle_off"
+    //% block="button %button toggle off"
+    //% weight=39
+    export function onVCbuttonToggleOff(
+        keyCode: string,
+        handler: () => void
+    ) {
+        if (this.isKey(keyCode, 1) && buttonStates[keyCode]) {
+            buttonStates[keyCode] = 0;
+            handler();
+        }
+    }
+
+    /**
+     * Sets the button color in the controller app.
+     */
+    //% blockId="vc_set_button_color"
+    //% block="set button %code color %color"
+    //% weight=38
+    //% color.defl=KeyColor.Black
+    export function setButton(
+        code: string,
+        color: KeyColor,
+    ) {
+        bluetooth.uartWriteLine('vc;b;' + code + ';;' + color + ';;');
+    }
+
+    
 }
