@@ -347,7 +347,7 @@ namespace vcController {
     ) {
         if (this.isKey(keyCode, 1) && !buttonStates[keyCode]) {
             buttonStates[keyCode] = 1;
-            handler();
+            return handler();
         }
     }
 
@@ -363,7 +363,7 @@ namespace vcController {
     ) {
         if (this.isKey(keyCode, 1) && buttonStates[keyCode]) {
             buttonStates[keyCode] = 0;
-            handler();
+            return handler();
         }
     }
 
