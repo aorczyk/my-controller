@@ -119,13 +119,7 @@ namespace vcController {
                 commandValue = latestCommands[commandName]
                 delete latestCommands[commandName];
 
-                if (commandName == "-v") {
-                    bluetooth.uartWriteLine('vc;hasSettings;1;')
-                } else if (commandName == "getSettings") {
-                    bluetooth.uartWriteLine('vc;loader;1;')
-                    setup()
-                    bluetooth.uartWriteLine('vc;loader;0;')
-                }
+                setup(commandName)
 
                 if (commandName.indexOf(';') == -1) {
                     if (commandName[0] == '!') {
@@ -332,7 +326,15 @@ namespace vcController {
         // requireConfirmation: boolean,
         handler: () => void
     ) {
-        setup = handler;
+        setup = (commandName) => {
+            if (commandName == "-v") {
+                bluetooth.uartWriteLine('vc;hasSettings;1;')
+            } else if (commandName == "getSettings") {
+                bluetooth.uartWriteLine('vc;loader;1;')
+                handler()
+                bluetooth.uartWriteLine('vc;loader;0;')
+            }
+        };
     }
 
     /**
