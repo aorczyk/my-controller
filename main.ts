@@ -378,10 +378,11 @@ namespace vcController {
     //% block="set button %code color %color label %label"
     //% weight=38
     //% color.defl=KeyColor.Black
+    //% label.defl=''
     export function setButton(
         code: string,
         color: KeyColor,
-        label: string = ''
+        label: string
     ) {
         bluetooth.uartWriteLine('vc;b;' + code + ';1;' + color + ';' + label + ';');
     }
