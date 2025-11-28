@@ -73,7 +73,7 @@ namespace vcController {
     let commandName: string;
     let commandValue: number;
     let pressedKeys: string[] = [];
-    let setup = () => { };
+    let setup = (commandName: string) => { };
 
     // let rightSliderValue: number;
     // let leftSliderValue: number;
