@@ -382,7 +382,7 @@ namespace vcController {
     export function setButton(
         code: string,
         color: KeyColor,
-        label: string | number
+        label: string | number = ''
     ) {
         bluetooth.uartWriteLine('vc;b;' + code + ';1;' + color + ';' + label + ';');
     }
