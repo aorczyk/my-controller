@@ -224,7 +224,7 @@ namespace vcController {
      * Returns true if all keys have been released.
      */
     //% blockId=vc_are_all_keys_released
-    //% block="all keys released"
+    //% block="all buttons released"
     //% weight=86
     //% group="Buttons"
     export function areAllKeysReleased() {
