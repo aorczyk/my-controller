@@ -358,7 +358,7 @@ namespace vcController {
      */
     //% blockId="vc_button_toggle_counter"
     //% block="button toggle %toggleMaxCount"
-    //% toggleMaxCount.defl=KeyColor.Black
+    //% toggleMaxCount.defl=1
     //% weight=40
     export function onVCbuttonToggleCounter(
         toggleMaxCount: number = 1,
