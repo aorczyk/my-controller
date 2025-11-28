@@ -362,7 +362,7 @@ namespace vcController {
     export function onVCbuttonToggleCounter(
         toggleMaxCount: number = 1,
     ) {
-        if (buttonStates[commandName] !== undefined && buttonStates[commandName] < toggleMaxCount) {
+        if (buttonStates[commandName] !== undefined && buttonStates[commandName] < (toggleMaxCount - 1)) {
             buttonStates[commandName] += 1;
         } else {
             buttonStates[commandName] = 0;
