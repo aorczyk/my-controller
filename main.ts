@@ -338,10 +338,10 @@ namespace vcController {
     /**
      * Returns true if the button toggles on, false if it toggles off.
      */
-    //% blockId="vc_button_toggle"
-    //% block="button toggle"
+    //% blockId="vc_button_toggled"
+    //% block="button toggled"
     //% weight=40
-    export function onVCbuttonToggle(
+    export function buttonToggled(
     ) {
         if (!buttonStates[commandName]) {
             buttonStates[commandName] = 1;
@@ -356,11 +356,11 @@ namespace vcController {
      * Returns the current toggle count for the button (0 to max count).
      * Each button press increments the counter until it reaches the maximum, then resets to 0.
      */
-    //% blockId="vc_button_toggle_counter"
+    //% blockId="vc_button_toggle_count"
     //% block="button toggle count %toggleMaxCount"
     //% toggleMaxCount.defl=1
     //% weight=40
-    export function onVCbuttonToggleCounter(
+    export function buttonToggleCount(
         toggleMaxCount: number = 1,
     ) {
         if (buttonStates[commandName] == undefined) {
