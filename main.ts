@@ -353,7 +353,7 @@ namespace vcController {
      * @param label optional text or number to display on the button
      */
     //% blockId="vc_set_button_color"
-    //% block="set button %code visibility %visibility color %color label %label"
+    //% block="set button %code %visibility %color label %label"
     //% weight=50
     //% code.defl=''
     //% visibility.defl=KeyVisibility.Visible
