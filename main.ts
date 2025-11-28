@@ -359,8 +359,8 @@ namespace vcController {
      * @param label optional text or number to display on the button
      */
     //% blockId="vc_set_button_color"
-    //% block="set button $code visibility $visibility || color $color|label $label"
-    //% expandableArgumentMode="enabled"
+    //% block="set button $code|visibility $visibility|color $color|label $label"
+    //% inlineInputMode=inline
     //% weight=50
     //% code.defl=''
     //% visibility.defl=KeyVisibility.Visible
