@@ -430,7 +430,7 @@ namespace vcController {
     //% weight=40
     //% group="Utility"
     export function buttonToggleCount2(
-        toggleMaxCount?: number = 1,
+        toggleMaxCount?: number,
     ) {
         if (buttonStates[commandName] == undefined) {
             buttonStates[commandName] = 0;
