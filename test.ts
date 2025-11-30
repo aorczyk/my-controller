@@ -1,13 +1,9 @@
-myController.onCommand(function() {
+myController.onCommand(function () {
     if (myController.isKey("a", KeyState.Pressed)) {
         basic.showString("A")
     }
     if (myController.isKey("a", KeyState.Released)) {
         basic.clearScreen()
-    }
-
-    if (myController.isSlider(InputSide.Right)) {
-        basic.showNumber(myController.getCommandValue())
     }
 })
 
