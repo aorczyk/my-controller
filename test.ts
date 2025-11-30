@@ -1,8 +1,8 @@
-myController.onVCsetup(SetupConfirmation.Require, function() {
+myController.onSetup(SetupConfirmation.Require, function() {
     bluetooth.uartWriteLine('vc;init;')
 })
 
-myController.onVCcommand(function() {
+myController.onCommand(function() {
     if (myController.isKey("a", KeyState.Pressed)) {
         basic.showString("A")
     }

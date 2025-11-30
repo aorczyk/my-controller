@@ -14,7 +14,7 @@
  * 
  * @example
  * ```typescript
- * myController.onVCcommand(function () {
+ * myController.onCommand(function () {
  *     if (myController.isKey("a", KeyState.Pressed)) {
  *         basic.showString("A pressed")
  *     }
@@ -39,7 +39,7 @@
  * 
  * @example
  * ```typescript
- * myController.onVCsetup(true, function () {
+ * myController.onSetup(true, function () {
  *     myController.setButton("a", KeyVisibility.Visible, KeyColor.Green, "Jump")
  *     myController.setButton("b", KeyVisibility.Visible, KeyColor.Red, "Fire")
  * })
@@ -169,10 +169,10 @@ namespace myController {
      * Runs the code inside when any command is received from the controller.
      * Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
      */
-    //% blockId="vc_on_command"
+    //% blockId="myController_on_command"
     //% block="on command received"
     //% weight=92
-    export function onVCcommand(
+    export function onCommand(
         handler: () => void
     ) {
         basic.forever(function () {
@@ -223,7 +223,7 @@ namespace myController {
     /**
      * Returns the name of the most recently received command.
      */
-    //% blockId=vc_command_name
+    //% blockId=myController_command_name
     //% block="command name"
     //% weight=91
     export function getCommandName() {
@@ -233,7 +233,7 @@ namespace myController {
     /**
      * Returns the value of the most recently received command.
      */
-    //% blockId=vc_command_value
+    //% blockId=myController_command_value
     //% block="command value"
     //% weight=90
     export function getCommandValue() {
@@ -243,7 +243,7 @@ namespace myController {
     /**
      * Returns true if the specified button is in the chosen state.
      */
-    //% blockId=vc_is_key
+    //% blockId=myController_is_key
     //% block="button %keyCode %keyState"
     //% weight=89
     //% group="Buttons"
@@ -256,7 +256,7 @@ namespace myController {
     /**
      * Returns true if the selected button is in the chosen state.
      */
-    //% blockId=vc_is_special_key
+    //% blockId=myController_is_special_key
     //% block="%keyCode is %keyState"
     //% weight=88
     // export function isSpecialKey(keyCode: KeyCode, keyState: KeyState) {
@@ -266,7 +266,7 @@ namespace myController {
     /**
      * Returns the string code for the specified button.
      */
-    //% blockId=vc_key_code_value
+    //% blockId=myController_key_code_value
     //% block="code of %keyCode button"
     //% weight=87
     //% group="Buttons"
@@ -277,7 +277,7 @@ namespace myController {
     /**
      * Returns true if all keys have been released.
      */
-    //% blockId=vc_are_all_keys_released
+    //% blockId=myController_are_all_keys_released
     //% block="all buttons released"
     //% weight=86
     //% group="Buttons"
@@ -288,7 +288,7 @@ namespace myController {
     /**
      * Returns true if the specified slider value has changed.
      */
-    //% blockId=vc_is_slider
+    //% blockId=myController_is_slider
     //% block="%InputSide slider changed"
     //% weight=79
     //% group="Inputs"
@@ -299,7 +299,7 @@ namespace myController {
     /**
      * Returns the value of the specified slider.
      */
-    //% blockId=vc_slider_value
+    //% blockId=myController_slider_value
     //% block="%InputSide slider value"
     //% weight=78
     // export function getSliderValue(inputSide: InputSide) {
@@ -313,7 +313,7 @@ namespace myController {
     /**
      * Returns true if the specified joystick axis value has changed.
      */
-    //% blockId=vc_is_joystick
+    //% blockId=myController_is_joystick
     //% block="%InputSide joystick %JoystickDirection changed"
     //% weight=69
     //% group="Inputs"
@@ -324,7 +324,7 @@ namespace myController {
     /**
      * Returns the value of the specified joystick axis.
      */
-    //% blockId=vc_joystick_value
+    //% blockId=myController_joystick_value
     //% block="%InputSide joystick %JoystickDirection value"
     //% weight=68
     // export function getJoystickValue(inputSide: InputSide, inputDirection: JoystickDirection) {
@@ -346,7 +346,7 @@ namespace myController {
     /**
      * Returns true if the specified orientation axis value has changed.
      */
-    //% blockId=vc_is_orientation
+    //% blockId=myController_is_orientation
     //% block="orientation %InputOrientaton changed"
     //% weight=67
     //% group="Inputs"
@@ -363,7 +363,7 @@ namespace myController {
     /**
      * Returns the value of the specified orientation axis.
      */
-    //% blockId=vc_orientation_value
+    //% blockId=myController_orientation_value
     //% block="orientation %InputOrientaton value"
     //% weight=66
     // export function getOrientationValue(inputOrient: InputOrientaton) {
@@ -384,30 +384,30 @@ namespace myController {
     /**
      * Runs the code inside when the controller connects and sends the setup signal. When option require confirmation is selected, the controller app will wait for confirmation before applying settings.
      */
-    //% blockId="vc_setup"
+    //% blockId="myController_setup"
     //% block="setup %SetupConfirmation"
     //% weight=51
     //% requireConfirmation.defl=SetupConfirmation.Require
     //% group="Setup"
-    export function onVCsetup(
+    export function onSetup(
         requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
         setup = (commandName) => {
-            if (requireConfirmation) {
-                if (commandName == "-v") {
+            if (commandName == "-v") {
+                if (requireConfirmation) {
                     bluetooth.uartWriteLine('vc;hasSettings;1;')
-                } else if (commandName == "getSettings") {
+                } else {
                     bluetooth.uartWriteLine('vc;loader;1;')
                     handler()
                     bluetooth.uartWriteLine('vc;loader;0;')
                 }
-            } else {
-                if (commandName == "-v") {
-                    bluetooth.uartWriteLine('vc;loader;1;')
-                    handler()
-                    bluetooth.uartWriteLine('vc;loader;0;')
-                }
+            }
+
+            if (commandName == "getSettings") {
+                bluetooth.uartWriteLine('vc;loader;1;')
+                handler()
+                bluetooth.uartWriteLine('vc;loader;0;')
             }
         };
     }
@@ -420,7 +420,7 @@ namespace myController {
      * @param color the button color
      * @param label optional text or number to display on the button
      */
-    //% blockId="vc_set_button_color"
+    //% blockId="myController_set_button_color"
     //% block="set button $code|$visibility|$color|label $label"
     //% inlineInputMode=inline
     //% weight=50
@@ -441,7 +441,7 @@ namespace myController {
     /**
      * Returns true if the button toggles on, false if it toggles off.
      */
-    //% blockId="vc_button_toggled"
+    //% blockId="myController_button_toggled"
     //% block="button toggled"
     //% weight=41
     //% group="Utility"
@@ -460,7 +460,7 @@ namespace myController {
      * Returns the current toggle count for the button (0 to max count).
      * Each button press increments the counter until it reaches the maximum, then resets to 0.
      */
-    //% blockId="vc_button_toggle_count"
+    //% blockId="myController_button_toggle_count"
     //% block="button toggle count %toggleMaxCount"
     //% toggleMaxCount.defl=1
     //% weight=40
