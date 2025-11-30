@@ -2,7 +2,7 @@ myController.onCommand(function() {
     if (myController.isKey("a", KeyState.Pressed)) {
         basic.showString("A")
     }
-    if (myController.isKey("a", KeyState.Pressed)) {
+    if (myController.isKey("a", KeyState.Released)) {
         basic.clearScreen()
     }
 
