@@ -249,7 +249,7 @@ namespace myController {
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
-        return keyState ? pressedKeys.hasOwnProperty(code) : (commandName == '!' + code)
+        return keyState ? pressedKeys[code] : (commandName == '!' + code)
     }
 
     /**

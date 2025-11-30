@@ -5,6 +5,9 @@ myController.onCommand(function () {
     if (myController.isKey("a", KeyState.Released)) {
         basic.clearScreen()
     }
+    if (myController.isKey("s", KeyState.Pressed) && myController.isKey("d", KeyState.Pressed)) {
+        basic.showString("2")
+    }
 })
 
 myController.onSetup(SetupConfirmation.Require, function() {
