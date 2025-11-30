@@ -385,9 +385,9 @@ namespace vcController {
      * Runs the code inside when the controller connects and sends the setup signal.
      */
     //% blockId="vc_setup"
-    //% block="setup controller|require confirmation %requireConfirmation"
+    //% block="setup %requireConfirmation"
     //% weight=51
-    //% requireConfirmation.defl=false
+    //% requireConfirmation.defl=1
     //% group="Setup"
     export function onVCsetup(
         handler: () => void,
