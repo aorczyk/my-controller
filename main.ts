@@ -1,3 +1,45 @@
+/**
+ * My Controller namespace provides blocks for controlling a micro:bit via Bluetooth from a mobile app.
+ * 
+ * This extension allows you to:
+ * - Receive button presses and releases
+ * - Read slider values
+ * - Get joystick positions
+ * - Monitor device orientation
+ * - Configure custom button layouts and colors
+ * 
+ * @remarks
+ * This namespace uses UART Bluetooth service to communicate with the controller app.
+ * Make sure Bluetooth is enabled on both the micro:bit and the mobile device.
+ * 
+ * @example
+ * ```typescript
+ * vcController.onVCcommand(function () {
+ *     if (vcController.isKey("a", KeyState.Pressed)) {
+ *         basic.showString("A pressed")
+ *     }
+ * })
+ * ```
+ */
+
+/**
+ * Runs the code inside when the controller connects and sends the setup signal.
+ * 
+ * @param requireConfirmation - When true, the controller app will wait for confirmation before applying settings. This ensures all button configurations are sent before the controller becomes active.
+ * @param handler - The code to run during setup, typically containing setButton() calls to configure the controller interface
+ * 
+ * @remarks
+ * Use this block to configure your controller's buttons, colors, and layout.
+ * The setup is triggered when the controller app connects and requests settings.
+ * 
+ * @example
+ * ```typescript
+ * vcController.onVCsetup(true, function () {
+ *     vcController.setButton("a", KeyVisibility.Visible, KeyColor.Green, "Jump")
+ *     vcController.setButton("b", KeyVisibility.Visible, KeyColor.Red, "Fire")
+ * })
+ * ```
+ */
 const enum KeyCode {
     //% block="Arrow Up"
     ArrowUp = 1,
@@ -331,12 +373,12 @@ namespace vcController {
      * Runs the code inside when the controller connects and sends the setup signal.
      */
     //% blockId="vc_setup"
-    //% block="setup"
+    //% block="setup controller|require confirmation %requireConfirmation"
     //% weight=51
-    //% requireConfirmation.defl=false
+    //% requireConfirmation.defl=true
     //% group="Setup"
     export function onVCsetup(
-        // requireConfirmation: boolean,
+        requireConfirmation?: boolean,
         handler: () => void
     ) {
         setup = (commandName) => {
