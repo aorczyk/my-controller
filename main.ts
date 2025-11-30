@@ -14,8 +14,8 @@
  * 
  * @example
  * ```typescript
- * vcController.onVCcommand(function () {
- *     if (vcController.isKey("a", KeyState.Pressed)) {
+ * myController.onVCcommand(function () {
+ *     if (myController.isKey("a", KeyState.Pressed)) {
  *         basic.showString("A pressed")
  *     }
  * })
@@ -39,9 +39,9 @@
  * 
  * @example
  * ```typescript
- * vcController.onVCsetup(true, function () {
- *     vcController.setButton("a", KeyVisibility.Visible, KeyColor.Green, "Jump")
- *     vcController.setButton("b", KeyVisibility.Visible, KeyColor.Red, "Fire")
+ * myController.onVCsetup(true, function () {
+ *     myController.setButton("a", KeyVisibility.Visible, KeyColor.Green, "Jump")
+ *     myController.setButton("b", KeyVisibility.Visible, KeyColor.Red, "Fire")
  * })
  * ```
  */
@@ -129,7 +129,7 @@ const enum SetupConfirmation {
 }
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
-namespace vcController {
+namespace myController {
     let latestCommands: { [key: string]: number } = {}
     let commandName: string;
     let commandValue: number;
