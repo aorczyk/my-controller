@@ -130,12 +130,12 @@ const enum SetupConfirmation {
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
-    let latestCommands: { [key: string]: number } = {}
+    let latestCommands: { [key: string]: number } = {};
     let commandName: string;
     let commandValue: number;
-    let pressedKeys: string[] = [];
+    let pressedKeys: { [key: string]: number } = {};
     let setup = (commandName: string) => { };
-    let buttonStates: { [key: string]: number } = {}
+    let buttonStates: { [key: string]: number } = {};
 
     // let rightSliderValue: number;
     // let leftSliderValue: number;
@@ -154,7 +154,7 @@ namespace myController {
     bluetooth.startUartService()
 
     bluetooth.onBluetoothConnected(() => {
-        pressedKeys = []
+        pressedKeys = {}
     })
 
     bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
@@ -185,9 +185,9 @@ namespace myController {
 
                 if (commandName.indexOf(';') == -1) {
                     if (commandName[0] == '!') {
-                        pressedKeys.splice(pressedKeys.indexOf(commandName.slice(1)), 1)
+                        delete pressedKeys[commandName.slice(1)] 
                     } else {
-                        pressedKeys.push(commandName)
+                        pressedKeys[commandName] = 1
                     }
                 }
 
@@ -248,9 +248,8 @@ namespace myController {
     //% weight=89
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
-        // return commandName == (keyState ? '' : '!') + keyCode.toLowerCase()
         let code = keyCode.toLowerCase();
-        return keyState ? pressedKeys.indexOf(code) != -1 : commandName == '!' + code
+        return keyState ? pressedKeys.hasOwnProperty(code) : (commandName == '!' + code)
     }
 
     /**
