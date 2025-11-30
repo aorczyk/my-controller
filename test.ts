@@ -7,7 +7,7 @@ myController.onCommand(function () {
     }
 })
 
-myController.onSetup(SetupConfirmation.Require, function () {
+myController.onSetup(SetupConfirmation.Require, function() {
     bluetooth.uartWriteLine("vc;init;")
     bluetooth.uartWriteLine("vc;b;1;0;0;<i class=\"fa-solid fa-volume-high\"></i>;")
 })
