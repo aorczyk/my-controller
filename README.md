@@ -29,7 +29,7 @@ This repository can be added as an **extension** in MakeCode:
 
 ```typescript
 // Handle button presses
-myController.onVCcommand(function () {
+myController.onCommand(function () {
     if (myController.isKey("a", KeyState.Pressed)) {
         basic.showString("A")
     }
@@ -43,7 +43,7 @@ myController.onVCcommand(function () {
 
 ```typescript
 // Configure your controller layout
-myController.onVCsetup(true, function () {
+myController.onSetup(true, function () {
     myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "A")
     myController.setButton("up", KeyVisibility.Visible, KeyColor.Red)
 })
@@ -53,7 +53,7 @@ myController.onVCsetup(true, function () {
 
 ### Setup
 
-#### `onVCsetup(requireConfirmation, handler)`
+#### `onSetup(requireConfirmation, handler)`
 Configures the controller interface when the app connects.
 
 **Parameters:**
@@ -135,7 +135,7 @@ Returns the value of the most recently received command.
 ### Toggle Button
 
 ```typescript
-myController.onVCcommand(function () {
+myController.onCommand(function () {
     if (myController.isKey("a", KeyState.Pressed)) {
         if (myController.buttonToggled()) {
             basic.showIcon(IconNames.Yes)
@@ -149,7 +149,7 @@ myController.onVCcommand(function () {
 ### Multi-State Button
 
 ```typescript
-myController.onVCcommand(function () {
+myController.onCommand(function () {
     if (myController.isKey("b", KeyState.Pressed)) {
         let state = myController.buttonToggleCount(3)
         basic.showNumber(state)
