@@ -225,7 +225,7 @@ namespace myController {
 
                 handler()
 
-                if (isNaN(commandValue)) {
+                if (isNaN(commandValue) && pressedKeys[commandName] == 0) {
                     delete pressedKeys[commandName]
                 }
             }
