@@ -134,9 +134,10 @@ namespace myController {
     let latestCommands: { [key: string]: number } = {};
     let commandName: string;
     let commandValue: number;
+    // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: number } = {};
-    let setup = (commandName: string) => { };
     let buttonStates: { [key: string]: number } = {};
+    let setup = (commandName: string) => { };
 
     // let rightSliderValue: number;
     // let leftSliderValue: number;
@@ -168,6 +169,7 @@ namespace myController {
         let commandName = commadParts[0]
         let commandValue = parseFloat(commadParts[1])
 
+        // Button press/release or some other non-numeric command (to be handled later).
         if (isNaN(commandValue)) {
             if (commandName[0] == '!') {
                 let keyCode = commandName.slice(1)
