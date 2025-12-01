@@ -130,6 +130,7 @@ const enum SetupConfirmation {
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
+    // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue. Does not work with fast button presses/releases, those are handled immediately. 
     let latestCommands: { [key: string]: number } = {};
     let commandName: string;
     let commandValue: number;
@@ -183,7 +184,8 @@ namespace myController {
 
                 setup(commandName)
 
-                if (commandName.indexOf(';') == -1) {
+                // Handle key press/release events
+                if (isNaN(commandValue)) {
                     if (commandName[0] == '!') {
                         delete pressedKeys[commandName.slice(1)] 
                     } else {
