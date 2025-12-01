@@ -163,7 +163,22 @@ namespace myController {
         let command: string;
         command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
         commadParts = command.split("=")
-        latestCommands[commadParts[0]] = parseFloat(commadParts[1])
+
+        // Handle key press/release events immediately
+        let commandName = commadParts[0]
+        let commandValue = parseFloat(commadParts[1])
+
+        if (isNaN(commandValue)) {
+            if (commandName[0] == '!') {
+                let keyCode = commandName.slice(1)
+                pressedKeys[keyCode] = 0
+                commandName = keyCode
+            } else {
+                pressedKeys[commandName] = 1
+            }
+        }
+
+        latestCommands[commandName] = commandValue
     })
 
     /**
@@ -183,15 +198,6 @@ namespace myController {
                 delete latestCommands[commandName];
 
                 setup(commandName)
-
-                // Handle key press/release events
-                if (isNaN(commandValue)) {
-                    if (commandName[0] == '!') {
-                        delete pressedKeys[commandName.slice(1)] 
-                    } else {
-                        pressedKeys[commandName] = 1
-                    }
-                }
 
                 // if (commandName == "sr") {
                 //     rightSliderValue = commandValue
@@ -218,6 +224,10 @@ namespace myController {
                 // }
 
                 handler()
+
+                if (isNaN(commandValue)) {
+                    delete pressedKeys[commandName]
+                }
             }
         })
     }
@@ -251,7 +261,7 @@ namespace myController {
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
-        return keyState ? pressedKeys[code] : (commandName == '!' + code)
+        return pressedKeys[code] == keyState
     }
 
     /**
