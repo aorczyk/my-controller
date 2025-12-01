@@ -130,14 +130,14 @@ const enum SetupConfirmation {
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
-    // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue. Does not work with fast button presses/releases, those are handled immediately. 
+    // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
     let latestCommands: { [key: string]: number } = {};
     let commandName: string;
     let commandValue: number;
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: number } = {};
     let buttonStates: { [key: string]: number } = {};
-    let setup = (commandName: string) => { };
+    let setup = (commandName: string) => {};
 
     // let rightSliderValue: number;
     // let leftSliderValue: number;
@@ -160,27 +160,19 @@ namespace myController {
     })
 
     bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        let commadParts: string[] = []
-        let command: string;
-        command = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
-        commadParts = command.split("=")
-
-        // Handle key press/release events immediately
-        let commandName = commadParts[0]
-        let commandValue = parseFloat(commadParts[1])
+        let command: string = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+        let [commandName, commandValue] = command.split("=")
 
         // Button press/release or some other non-numeric command (to be handled later).
-        if (isNaN(commandValue)) {
+        if (commandValue == undefined) {
             if (commandName[0] == '!') {
-                let keyCode = commandName.slice(1)
-                pressedKeys[keyCode] = 0
-                commandName = keyCode
+                delete pressedKeys[commandName.slice(1)]
             } else {
                 pressedKeys[commandName] = 1
             }
         }
 
-        latestCommands[commandName] = commandValue
+        latestCommands[commandName] = parseFloat(commandValue)
     })
 
     /**
@@ -226,10 +218,6 @@ namespace myController {
                 // }
 
                 handler()
-
-                if (isNaN(commandValue) && pressedKeys[commandName] == 0) {
-                    delete pressedKeys[commandName]
-                }
             }
         })
     }
@@ -263,7 +251,7 @@ namespace myController {
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
-        return pressedKeys[code] == keyState
+        return keyState ? pressedKeys[code] : (commandName == '!' + code)
     }
 
     /**
