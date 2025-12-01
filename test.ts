@@ -8,9 +8,13 @@ myController.onCommand(function () {
     if (myController.isKey("s", KeyState.Pressed) && myController.isKey("d", KeyState.Pressed)) {
         basic.showString("2")
     }
+    if (myController.isSlider(InputSide.Right)) {
+        basic.showNumber(myController.getCommandValue())
+    }
 })
 
 myController.onSetup(SetupConfirmation.Require, function() {
+    basic.showIcon(IconNames.Heart)
     bluetooth.uartWriteLine("vc;init;")
     bluetooth.uartWriteLine("vc;b;1;0;0;<i class=\"fa-solid fa-volume-high\"></i>;")
 })
