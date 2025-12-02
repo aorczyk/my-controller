@@ -246,7 +246,7 @@ namespace myController {
      * Returns true if the specified button is in the chosen state.
      */
     //% blockId=myController_is_key
-    //% block="button %keyCode %keyState"
+    //% block="button %keyCode %KeyState"
     //% weight=89
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
@@ -268,7 +268,7 @@ namespace myController {
      * Returns the string code for the specified button.
      */
     //% blockId=myController_key_code_value
-    //% block="code of %keyCode button"
+    //% block="code of %KeyCode button"
     //% weight=87
     //% group="Buttons"
     export function getKeyCodeValue(keyCode: KeyCode) {
