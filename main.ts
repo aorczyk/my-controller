@@ -281,7 +281,7 @@ namespace myController {
     //% weight=87
     //% group="Buttons"
     export function getKeyCodeValue(keyCode: KeyCode) {
-        return KeyCodeLabel[keyCode] as string
+        return KeyCodeLabel[keyCode] || ""
     }
 
     /**
