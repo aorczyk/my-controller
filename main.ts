@@ -135,7 +135,7 @@ namespace myController {
     let commandName: string;
     let commandValue: number;
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
-    let pressedKeys: { [key: string]: number } = {};
+    let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
     let setup = (commandName: string) => {};
     let btConnected = false;
@@ -162,7 +162,7 @@ namespace myController {
             if (commandName[0] == '!') {
                 delete pressedKeys[commandName.slice(1)]
             } else {
-                pressedKeys[commandName] = 1
+                pressedKeys[commandName] = true
             }
         }
 
