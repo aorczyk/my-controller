@@ -138,7 +138,8 @@ namespace myController {
     let pressedKeys: { [key: string]: number } = {};
     let buttonStates: { [key: string]: number } = {};
     let setup = (commandName: string) => {};
-
+    let btConnected = false;
+    let serialConnected = false;
     // let rightSliderValue: number;
     // let leftSliderValue: number;
 
@@ -153,14 +154,7 @@ namespace myController {
     // let orientationZvalue: number;
     // let orientationCompassValue: number;
 
-    bluetooth.startUartService()
-
-    bluetooth.onBluetoothConnected(() => {
-        pressedKeys = {}
-    })
-
-    bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        let command: string = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+    function onDataReceived(command: string) {
         let [commandName, commandValue] = command.split("=")
 
         // Button press/release or some other non-numeric command (to be handled later).
@@ -173,6 +167,31 @@ namespace myController {
         }
 
         latestCommands[commandName] = parseFloat(commandValue)
+    }
+
+    export function sendData(data: string) {
+        if (btConnected) {
+            bluetooth.uartWriteLine(data)
+        }
+        if (serialConnected) {
+            serial.writeLine(data)
+        }
+    }
+
+    bluetooth.startUartService()
+
+    bluetooth.onBluetoothConnected(() => {
+        btConnected = true;
+        pressedKeys = {};
+    })
+
+    bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+        onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+    })
+
+    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+        serialConnected = true;
+        onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
     })
 
     /**
@@ -287,6 +306,49 @@ namespace myController {
     }
 
     /**
+     * Returns true if the button toggles on, false if it toggles off.
+     */
+    //% blockId="myController_button_toggled"
+    //% block="button toggled"
+    //% weight=85
+    //% group="Buttons"
+    export function buttonToggled(
+    ) {
+        if (!buttonStates[commandName]) {
+            buttonStates[commandName] = 1;
+        } else {
+            buttonStates[commandName] = 0;
+        }
+
+        return buttonStates[commandName] == 1;
+    }
+
+    /**
+     * Returns the current toggle count for the button (0 to max count).
+     * Each button press increments the counter until it reaches the maximum, then resets to 0.
+     */
+    //% blockId="myController_button_toggle_count"
+    //% block="button toggle count %toggleMaxCount"
+    //% toggleMaxCount.defl=1
+    //% weight=84
+    //% group="Buttons"
+    export function buttonToggleCount(
+        toggleMaxCount: number = 1,
+    ) {
+        if (buttonStates[commandName] == undefined) {
+            buttonStates[commandName] = 0;
+        }
+
+        if (buttonStates[commandName] < toggleMaxCount) {
+            buttonStates[commandName] += 1;
+        } else {
+            buttonStates[commandName] = 0;
+        }
+
+        return buttonStates[commandName];
+    }
+
+    /**
      * Returns true if the specified slider value has changed.
      */
     //% blockId=myController_is_slider
@@ -397,18 +459,18 @@ namespace myController {
         setup = (commandName) => {
             if (commandName == "-v") {
                 if (requireConfirmation) {
-                    bluetooth.uartWriteLine('vc;hasSettings;1;')
+                    sendData('vc;hasSettings;1;')
                 } else {
-                    bluetooth.uartWriteLine('vc;loader;1;')
+                    sendData('vc;loader;1;')
                     handler()
-                    bluetooth.uartWriteLine('vc;loader;0;')
+                    sendData('vc;loader;0;')
                 }
             }
 
             if (commandName == "getSettings") {
-                bluetooth.uartWriteLine('vc;loader;1;')
+                sendData('vc;loader;1;')
                 handler()
-                bluetooth.uartWriteLine('vc;loader;0;')
+                sendData('vc;loader;0;')
             }
         };
     }
@@ -436,49 +498,6 @@ namespace myController {
         color?: KeyColor,
         label?: string | number
     ) {
-        bluetooth.uartWriteLine(['vc;b', code, visibility, color, label,].join(';'));
-    }
-
-    /**
-     * Returns true if the button toggles on, false if it toggles off.
-     */
-    //% blockId="myController_button_toggled"
-    //% block="button toggled"
-    //% weight=41
-    //% group="Utility"
-    export function buttonToggled(
-    ) {
-        if (!buttonStates[commandName]) {
-            buttonStates[commandName] = 1;
-        } else {
-            buttonStates[commandName] = 0;
-        }
-
-        return buttonStates[commandName] == 1;
-    }
-
-    /**
-     * Returns the current toggle count for the button (0 to max count).
-     * Each button press increments the counter until it reaches the maximum, then resets to 0.
-     */
-    //% blockId="myController_button_toggle_count"
-    //% block="button toggle count %toggleMaxCount"
-    //% toggleMaxCount.defl=1
-    //% weight=40
-    //% group="Utility"
-    export function buttonToggleCount(
-        toggleMaxCount: number = 1,
-    ) {
-        if (buttonStates[commandName] == undefined) {
-            buttonStates[commandName] = 0;
-        }
-
-        if (buttonStates[commandName] < toggleMaxCount) {
-            buttonStates[commandName] += 1;
-        } else {
-            buttonStates[commandName] = 0;
-        }
-
-        return buttonStates[commandName];
+        sendData(['vc;b', code, visibility, color, label,].join(';'));
     }
 }
