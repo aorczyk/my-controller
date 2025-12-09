@@ -137,22 +137,9 @@ namespace myController {
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
-    let setup = (commandName: string) => {};
+    let setup: (commandName: string) => void = (commandName: string) => {};
     let btConnected = false;
     let serialConnected = false;
-    // let rightSliderValue: number;
-    // let leftSliderValue: number;
-
-    // let rightJoystickXvalue: number;
-    // let rightJoystickYvalue: number;
-
-    // let leftJoystickXvalue: number;
-    // let leftJoystickYvalue: number;
-
-    // let orientationXvalue: number;
-    // let orientationYvalue: number;
-    // let orientationZvalue: number;
-    // let orientationCompassValue: number;
 
     function onDataReceived(command: string) {
         let [commandName, commandValue] = command.split("=")
@@ -167,15 +154,6 @@ namespace myController {
         }
 
         latestCommands[commandName] = parseFloat(commandValue)
-    }
-
-    export function sendData(data: string) {
-        if (btConnected) {
-            bluetooth.uartWriteLine(data)
-        }
-        if (serialConnected) {
-            serial.writeLine(data)
-        }
     }
 
     bluetooth.startUartService()
@@ -211,30 +189,6 @@ namespace myController {
                 delete latestCommands[commandName];
 
                 setup(commandName)
-
-                // if (commandName == "sr") {
-                //     rightSliderValue = commandValue
-                // }
-
-                // if (commandName == "sl") {
-                //     leftSliderValue = commandValue
-                // }
-
-                // if (commandName == "jrx") {
-                //     rightJoystickXvalue = commandValue
-                // }
-
-                // if (commandName == "jry") {
-                //     rightJoystickYvalue = commandValue
-                // }
-
-                // if (commandName == "jlx") {
-                //     leftJoystickXvalue = commandValue
-                // }
-
-                // if (commandName == "jly") {
-                //     leftJoystickYvalue = commandValue
-                // }
 
                 handler()
             }
@@ -314,8 +268,8 @@ namespace myController {
     }
 
     /**
-     * Returns the current toggle count for the button (0 to max count).
-     * Each button press increments the counter until it reaches the maximum, then resets to 0.
+     * Returns the current toggle count for the button (1 to max count).
+     * Each function call increments the counter until it reaches the maximum, then resets to 0.
      */
     //% blockId="myController_button_toggle_count"
     //% block="button toggle count %toggleMaxCount"
@@ -350,20 +304,6 @@ namespace myController {
     }
 
     /**
-     * Returns the value of the specified slider.
-     */
-    //% blockId=myController_slider_value
-    //% block="%InputSide slider value"
-    //% weight=78
-    // export function getSliderValue(inputSide: InputSide) {
-    //     if (inputSide == 1) {
-    //         return rightSliderValue
-    //     } else {
-    //         return leftSliderValue
-    //     }
-    // }
-
-    /**
      * Returns true if the specified joystick axis value has changed.
      */
     //% blockId=myController_is_joystick
@@ -373,28 +313,6 @@ namespace myController {
     export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
         return commandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
     }
-
-    /**
-     * Returns the value of the specified joystick axis.
-     */
-    //% blockId=myController_joystick_value
-    //% block="%InputSide joystick %JoystickDirection value"
-    //% weight=68
-    // export function getJoystickValue(inputSide: InputSide, inputDirection: JoystickDirection) {
-    //     if (inputSide == 1) {
-    //         if (inputDirection == 1) {
-    //             return rightJoystickXvalue
-    //         } else {
-    //             return rightJoystickYvalue
-    //         }
-    //     } else {
-    //         if (inputDirection == 1) {
-    //             return leftJoystickXvalue
-    //         } else {
-    //             return leftJoystickYvalue
-    //         }
-    //     }
-    // }
 
     /**
      * Returns true if the specified orientation axis value has changed.
@@ -413,26 +331,6 @@ namespace myController {
         return commandName == modes[inputOrient]
     }
 
-    /**
-     * Returns the value of the specified orientation axis.
-     */
-    //% blockId=myController_orientation_value
-    //% block="orientation %InputOrientaton value"
-    //% weight=66
-    // export function getOrientationValue(inputOrient: InputOrientaton) {
-    //     switch(inputOrient) {
-    //         case 1:
-    //             return orientationXvalue;
-    //         case 2:
-    //             return orientationYvalue;
-    //         case 3:
-    //             return orientationZvalue;
-    //         case 4:
-    //             return orientationCompassValue;
-    //         default:
-    //             return 0;
-    //     }
-    // }
 
     /**
      * Runs the code inside when the controller connects and sends the setup signal. When option require confirmation is selected, the controller app will wait for confirmation before applying settings.
@@ -446,7 +344,7 @@ namespace myController {
         requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
-        setup = (commandName) => {
+        setup = (commandName: string) => {
             if (commandName == "-v") {
                 if (requireConfirmation) {
                     sendData('vc;hasSettings;1;')
@@ -455,14 +353,51 @@ namespace myController {
                     handler()
                     sendData('vc;loader;0;')
                 }
-            }
-
-            if (commandName == "getSettings") {
+            } else if (commandName == "getSettings") {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
             }
         };
+    }
+
+    /**
+     * Imports controller settings from the provided data string.
+     * Use this block to quickly set up the controller interface by pasting
+     * the exported settings code from the controller settings page.
+     * @param data commands exported from the controller settings page, each command on a new line
+     */
+    //% blockId="myController_import_settings"
+    //% block="import settings %data"
+    //% inlineInputMode=inline
+    //% weight=50
+    //% data.defl=''
+    //% group="Setup"
+    export function importSettings(data: string) {
+        let commands = data.split('\n');
+        for (let i = 0; i < commands.length; i++) {
+            sendData(commands[i]);
+        }
+    }
+
+    /**
+     * Sends a raw data command to the controller app via Bluetooth or WebUSB.
+     * Use this block to send custom commands not covered by other blocks.
+     * @param data the raw command string to send
+     */
+    //% blockId="myController_send_data"
+    //% block="send data %data"
+    //% inlineInputMode=inline
+    //% weight=49
+    //% data.defl=''
+    //% group="Setup"
+    export function sendData(data: string) {
+        if (btConnected) {
+            bluetooth.uartWriteLine(data)
+        }
+        if (serialConnected) {
+            serial.writeLine(data)
+        }
     }
 
     /**
@@ -476,7 +411,7 @@ namespace myController {
     //% blockId="myController_set_button_color"
     //% block="set button $code|$visibility|$color|label $label"
     //% inlineInputMode=inline
-    //% weight=50
+    //% weight=48
     //% code.defl=''
     //% visibility.defl=KeyVisibility.Visible
     //% color.defl=KeyColor.Black
@@ -490,4 +425,5 @@ namespace myController {
     ) {
         sendData(['vc;b', code, visibility, color, label,].join(';'));
     }
+
 }
