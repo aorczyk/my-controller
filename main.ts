@@ -374,7 +374,7 @@ namespace myController {
     //% data.defl=''
     //% group="Setup"
     export function importSettings(data: string) {
-        let commands = data.split('\n');
+        let commands = data.split(/\\n|;\s/);
         for (let i = 0; i < commands.length; i++) {
             sendData(commands[i]);
         }
