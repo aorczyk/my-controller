@@ -137,7 +137,7 @@ namespace myController {
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
-    let setup: (commandName: string) => void = (commandName: string) => {};
+    let setup: () => void = () => {};
     let commandsHandler: () => void = () => {};
     let btConnected = false;
     let serialConnected = false;
@@ -179,8 +179,7 @@ namespace myController {
             commandValue = latestCommands[commandName]
             delete latestCommands[commandName];
 
-            setup(commandName)
-
+            setup()
             commandsHandler()
         }
     })
@@ -347,7 +346,7 @@ namespace myController {
         requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
-        setup = (commandName: string) => {
+        setup = () => {
             if (commandName == "-v") {
                 if (requireConfirmation) {
                     sendData('vc;hasSettings;1;')
