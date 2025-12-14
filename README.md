@@ -6,11 +6,11 @@
 [![micro:bit](https://img.shields.io/badge/micro%3Abit-v2-blue)](https://microbit.org/)
 [![MakeCode](https://img.shields.io/badge/MakeCode-Extension-orange)](https://makecode.microbit.org/)
 
-A powerful MakeCode extension that enables control of your micro:bit through an app [my micro:bit](https://mymicrobit.medlight.pl/) using Bluetooth UART or WebUSB. Create custom controller interfaces with buttons, sliders, joysticks, and orientation sensors.
+A powerful MakeCode extension that enables control of your micro:bit through an app [my micro:bit](https://mymicrobit.medlight.pl/) using Bluetooth or WebUSB. Create custom controller interfaces with buttons, sliders, joysticks, and orientation sensors.
 
 ## ✨ Features
 
-- 🎮 **Button Controls** - Receive button presses and releases from your mobile device
+- 🎮 **Button Controls** - Receive button presses and releases from your mobile device or computer
 - 🎚️ **Sliders** - Read analog slider values for smooth input control
 - 🕹️ **Joysticks** - Get X and Y joystick positions for directional input
 - 🧭 **Orientation Sensors** - Monitor device orientation (X, Y, Z axes and compass)
@@ -36,10 +36,10 @@ Add this extension to your MakeCode project:
 // Handle button presses
 myController.onCommand(function () {
     if (myController.isKey("1", KeyState.Pressed)) {
-        basic.showString("A")
+        led.plot(2, 2)
     }
     if (myController.isKey("1", KeyState.Released)) {
-        basic.clearScreen()
+        led.unplot(2, 2)
     }
 })
 ```
@@ -50,7 +50,7 @@ myController.onCommand(function () {
 
 #### `onSetup(requireConfirmation, handler)`
 
-Configures the controller interface when the mobile app connects.
+Configures the controller interface when the app connects.
 
 **Parameters:**
 - `requireConfirmation` (SetupConfirmation) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
@@ -59,22 +59,41 @@ Configures the controller interface when the mobile app connects.
 **Example:**
 ```typescript
 myController.onSetup(SetupConfirmation.Require, function () {
-    myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "↑")
-    myController.setButton("2", KeyVisibility.Visible, KeyColor.Green, "↓")
+    myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "A")
+    myController.setButton("2", KeyVisibility.Visible, KeyColor.Red, "B")
 })
 ```
 
-> 💡 **Tip:** You can paste exported configuration code from the controller app website directly into this function!
+#### `importSettings(settingsString)`
+
+Imports controller configuration from a settings string exported from the app.
+
+**Parameters:**
+- `settingsString` (string) - The settings string copied from the app's export feature
+
+**Example:**
+```typescript
+myController.onSetup(SetupConfirmation.Require, function () {
+    myController.importSettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
+})
+```
 
 #### `setButton(code, visibility, color, label)`
 
 Configures a button's appearance in the controller app.
 
 **Parameters:**
-- `code` (string) - Button code (e.g., "a", "b", "up", "down", "space")
+- `code` (string) - Button code (e.g., "1", "2", "up", "down", "space")
 - `visibility` (KeyVisibility) - `Visible` or `Hidden`
 - `color` (KeyColor) - `Black`, `Green`, `Blue`, `Yellow`, or `Red`
-- `label` (string|number) - Optional text or number to display on the button
+- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa fa-heart'></i>`)
+
+**Example:**
+```typescript
+myController.onSetup(SetupConfirmation.Require, function () {
+    myController.importSettings("vc;init; vc;b;2;1;4;<i class='fa fa-heart'></i>;")
+})
+```
 
 ### Button Input
 
@@ -88,9 +107,14 @@ Returns `true` if the specified button is in the chosen state.
 
 **Example:**
 ```typescript
-if (myController.isKey("a", KeyState.Pressed)) {
-    // Button A is pressed
-}
+myController.onCommand(function () {
+    if (myController.isKey("1", KeyState.Pressed)) {
+        led.plot(2, 2)
+    }
+    if (myController.isKey("1", KeyState.Released)) {
+        led.unplot(2, 2)
+    }
+})
 ```
 
 #### `areAllKeysReleased()`
@@ -118,10 +142,12 @@ Returns `true` if the button toggles on, `false` if it toggles off. Maintains in
 **Example:**
 ```typescript
 myController.onCommand(function () {
-    if (myController.isKey("a", KeyState.Pressed)) {
+    if (myController.isKey("1", KeyState.Pressed)) {
         if (myController.buttonToggled()) {
+            myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, '<i class="fa-solid fa-check"></i>')
             basic.showIcon(IconNames.Yes)
         } else {
+            myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, '<i class="fa-solid fa-xmark"></i>')
             basic.showIcon(IconNames.No)
         }
     }
@@ -137,10 +163,15 @@ Returns the current toggle count (0 to maxCount). Each press increments the coun
 
 **Example:**
 ```typescript
-if (myController.isKey("b", KeyState.Pressed)) {
-    let state = myController.buttonToggleCount(3) // Cycles: 0→1→2→3→0
-    basic.showNumber(state)
-}
+myController.onCommand(function () {
+    if (myController.isKey("1", KeyState.Pressed)) {
+        state = myController.buttonToggleCount(3)
+        myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, state)
+        basic.showString("" + (state))
+    }
+})
+let state = 0
+state = 0
 ```
 
 ### Analog Inputs
@@ -151,6 +182,20 @@ Returns `true` if the specified slider value has changed.
 
 **Parameters:**
 - `inputSide` (InputSide) - `Right` or `Left`
+
+**Example:**
+```typescript
+myController.onCommand(function () {
+    if (myController.isSlider(InputSide.Right)) {
+        led.setBrightness(myController.getCommandValue())
+    }
+})
+myController.onSetup(SetupConfirmation.NoRequire, function () {
+    myController.importSettings("vc;init; vc;show;sr; vc;sr;0;0;255;1;0;0;1;100;")
+})
+basic.showIcon(IconNames.Heart)
+led.setBrightness(100)
+```
 
 #### `isJoystick(inputSide, direction)`
 
@@ -179,78 +224,48 @@ Returns the value of the most recently received command (for analog inputs).
 
 ## 💡 Examples
 
-### Simple Game Controller
-
-```typescript
-myController.onSetup(SetupConfirmation.Require, function () {
-    myController.setButton("w", KeyVisibility.Visible, KeyColor.Green, "↑")
-    myController.setButton("s", KeyVisibility.Visible, KeyColor.Green, "↓")
-    myController.setButton("a", KeyVisibility.Visible, KeyColor.Green, "←")
-    myController.setButton("d", KeyVisibility.Visible, KeyColor.Green, "→")
-    myController.setButton("space", KeyVisibility.Visible, KeyColor.Red, "Fire")
-})
-
-myController.onCommand(function () {
-    if (myController.isKey("w", KeyState.Pressed)) {
-        // Move forward
-        basic.showArrow(ArrowNames.North)
-    }
-    if (myController.isKey("s", KeyState.Pressed)) {
-        // Move backward
-        basic.showArrow(ArrowNames.South)
-    }
-    if (myController.isKey("space", KeyState.Pressed)) {
-        // Fire weapon
-        basic.showIcon(IconNames.Target)
-    }
-})
-```
-
-### LED Control with Toggle
-
-```typescript
-let ledState = false
-
-myController.onCommand(function () {
-    if (myController.isKey("l", KeyState.Pressed)) {
-        ledState = myController.buttonToggled()
-        if (ledState) {
-            led.plot(2, 2)
-        } else {
-            led.unplot(2, 2)
-        }
-    }
-})
-```
-
-### Multi-Mode Controller
+### Controlling a dot on a micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
 
 ```typescript
 myController.onCommand(function () {
-    if (myController.isKey("m", KeyState.Pressed)) {
-        let mode = myController.buttonToggleCount(3)
-        if (mode == 0) {
-            basic.showString("OFF")
-        } else if (mode == 1) {
-            basic.showString("LOW")
-        } else if (mode == 2) {
-            basic.showString("MED")
-        } else if (mode == 3) {
-            basic.showString("HIGH")
-        }
+    led.unplot(ledX, ledY)
+    if (myController.isSlider(InputSide.Right) || myController.isJoystick(InputSide.Right, JoystickDirection.x) || myController.isOrientation(InputOrientaton.x)) {
+        ledX = myController.getCommandValue() + 2
     }
-})
-```
-
-### Slider Control
-
-```typescript
-myController.onCommand(function () {
-    if (myController.isSlider(InputSide.Right)) {
-        let brightness = myController.getCommandValue()
-        led.setBrightness(brightness)
+    if (myController.isSlider(InputSide.Left) || myController.isJoystick(InputSide.Right, JoystickDirection.y) || myController.isOrientation(InputOrientaton.y)) {
+        ledY = myController.getCommandValue() + 2
     }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowDown), KeyState.Released) || myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowUp), KeyState.Released)) {
+        ledY = 2
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowRight), KeyState.Released) || myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowLeft), KeyState.Released)) {
+        ledX = 2
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowUp), KeyState.Pressed)) {
+        ledY = 0
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowDown), KeyState.Pressed)) {
+        ledY = 4
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowRight), KeyState.Pressed)) {
+        ledX = 4
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowLeft), KeyState.Pressed)) {
+        ledX = 0
+    }
+    if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowRight), KeyState.Pressed) && myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowLeft), KeyState.Pressed)) {
+        ledX = 2
+    }
+    led.plot(ledX, ledY)
 })
+myController.onSetup(SetupConfirmation.NoRequire, function () {
+    myController.importSettings("vc;init; vc;sl;1;-2;2;1;1;0;1;; vc;sr;1;-2;2;1;0;0;0;; vc;jrx;-2;2;1;0;0; vc;jry;-2;2;1;1;0; vc;ox;1;-45;45;-2;2;1;0;0; vc;oy;1;-45;45;-2;2;1;1;0; vc;il;1; vc;ir;2; vc;show;sl,sr,jr,ar;")
+})
+let ledY = 0
+let ledX = 0
+ledX = 2
+ledY = 2
+led.plot(ledX, ledY)
 ```
 
 ## 📋 Requirements
@@ -258,32 +273,11 @@ myController.onCommand(function () {
 - **micro:bit v2** (with Bluetooth support)
 - **Bluetooth enabled** on both micro:bit and mobile device
 - **UART Bluetooth service** (automatically started by the extension)
-- **Compatible mobile app** for controller interface
-
-## 🗂️ Block Categories
-
-Blocks are organized into intuitive groups in MakeCode:
-
-- **Setup** - Configure controller interface and button layouts
-- **Buttons** - Button press/release detection
-- **Inputs** - Sliders, joysticks, and orientation sensors
-- **Utility** - Toggle states and helper functions
-
-## 🔧 Technical Details
-
-- Uses **Bluetooth UART service** for communication
-- Supports **custom button layouts** with up to 5 colors
-- **Export/Import functionality** for easy configuration sharing
-- Maintains **individual state** for each button toggle
-- **Non-blocking event-driven** architecture
+- **Compatible app** for controller interface ([my micro:bit](https://mymicrobit.medlight.pl/))
 
 ## 📖 Documentation
 
-For more detailed documentation and tutorials, visit the [project wiki](https://github.com/aorczyk/my-controller/wiki).
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+For more detailed documentation and tutorials, visit the [my micro:bit](https://mymicrobit.medlight.pl/).
 
 ## 📄 License
 
@@ -296,9 +290,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🔗 Links
 
+- [my micro:bit](https://mymicrobit.medlight.pl/)
 - [MakeCode Editor](https://makecode.microbit.org/)
 - [micro:bit Website](https://microbit.org/)
-- [Issue Tracker](https://github.com/aorczyk/my-controller/issues)
 
 ---
 
