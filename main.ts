@@ -138,7 +138,7 @@ namespace myController {
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
     let setup: (commandName: string) => void = (commandName: string) => {};
-    let commandsHandler: (commandName: string, commandValue: number) => void = (commandName: string, commandValue: number) => {};
+    let commandsHandler: () => void = () => {};
     let btConnected = false;
     let serialConnected = false;
 
@@ -181,7 +181,7 @@ namespace myController {
 
             setup(commandName)
 
-            commandsHandler(commandName, commandValue)
+            commandsHandler()
         }
     })
 
@@ -195,9 +195,7 @@ namespace myController {
     export function onCommand(
         handler: () => void
     ) {
-        commandsHandler = (commandName: string, commandValue: number) => {
-            handler()
-        }
+        commandsHandler = handler
     }
 
     /**

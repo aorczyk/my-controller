@@ -72,7 +72,7 @@ Imports controller configuration from a settings string exported from the app.
 
 **Example:**
 ```typescript
-myController.onSetup(SetupConfirmation.Require, function () {
+myController.onSetup(SetupConfirmation.NoRequire, function () {
     myController.importSettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
 })
 ```
@@ -89,7 +89,7 @@ Configures a button's appearance in the controller app.
 
 **Example:**
 ```typescript
-myController.onSetup(SetupConfirmation.Require, function () {
+myController.onSetup(SetupConfirmation.NoRequire, function () {
     myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, "<i class='fa fa-heart'></i>")
 })
 ```
