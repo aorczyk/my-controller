@@ -30,10 +30,9 @@ Add this extension to your MakeCode project:
 4. Search for `https://github.com/aorczyk/my-controller`
 5. Click to import
 
-### Quick Start
+### Quick Start Example - Detect button "1" press and release:
 
 ```typescript
-// Handle button presses
 myController.onCommand(function () {
     if (myController.isKey("1", KeyState.Pressed)) {
         led.plot(2, 2)
@@ -54,7 +53,7 @@ Configures the controller interface when the app connects.
 
 **Parameters:**
 - `requireConfirmation` (SetupConfirmation) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
-- `handler` (function) - Code to run during setup, typically containing `setButton()` calls
+- `handler` (function) - Code to run during setup, typically containing `importSettings` call or `setButton` configurations.
 
 **Example:**
 ```typescript
@@ -83,7 +82,7 @@ myController.onSetup(SetupConfirmation.Require, function () {
 Configures a button's appearance in the controller app.
 
 **Parameters:**
-- `code` (string) - Button code (e.g., "1", "2", "up", "down", "space")
+- `code` (string) - Button code (e.g., "1", "2", "up", "down")
 - `visibility` (KeyVisibility) - `Visible` or `Hidden`
 - `color` (KeyColor) - `Black`, `Green`, `Blue`, `Yellow`, or `Red`
 - `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa fa-heart'></i>`)
@@ -91,7 +90,7 @@ Configures a button's appearance in the controller app.
 **Example:**
 ```typescript
 myController.onSetup(SetupConfirmation.Require, function () {
-    myController.importSettings("vc;init; vc;b;2;1;4;<i class='fa fa-heart'></i>;")
+    myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, "<i class='fa fa-heart'></i>")
 })
 ```
 
@@ -183,7 +182,7 @@ Returns `true` if the specified slider value has changed.
 **Parameters:**
 - `inputSide` (InputSide) - `Right` or `Left`
 
-**Example:**
+**Example - control brightness of the micro:bit LED display:**
 ```typescript
 myController.onCommand(function () {
     if (myController.isSlider(InputSide.Right)) {

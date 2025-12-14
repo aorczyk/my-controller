@@ -138,6 +138,7 @@ namespace myController {
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
     let setup: (commandName: string) => void = (commandName: string) => {};
+    let commandsHandler: (commandName: string, commandValue: number) => void = (commandName: string, commandValue: number) => {};
     let btConnected = false;
     let serialConnected = false;
 
@@ -172,6 +173,18 @@ namespace myController {
         onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
     })
 
+    basic.forever(function () {
+        while (Object.keys(latestCommands).length) {
+            commandName = Object.keys(latestCommands)[0]
+            commandValue = latestCommands[commandName]
+            delete latestCommands[commandName];
+
+            setup(commandName)
+
+            commandsHandler(commandName, commandValue)
+        }
+    })
+
     /**
      * Runs the code inside when any command is received from the controller.
      * Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
@@ -182,17 +195,9 @@ namespace myController {
     export function onCommand(
         handler: () => void
     ) {
-        basic.forever(function () {
-            while (Object.keys(latestCommands).length) {
-                commandName = Object.keys(latestCommands)[0]
-                commandValue = latestCommands[commandName]
-                delete latestCommands[commandName];
-
-                setup(commandName)
-
-                handler()
-            }
-        })
+        commandsHandler = (commandName: string, commandValue: number) => {
+            handler()
+        }
     }
 
     /**
