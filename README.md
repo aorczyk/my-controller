@@ -45,54 +45,19 @@ myController.onCommand(function () {
 
 ## 📚 API Reference
 
-### Setup & Configuration
+### Command Information
 
-#### `onSetup(requireConfirmation, handler)`
+#### `onCommand()`
 
-Configures the controller interface when the app connects.
+Registers a handler function to be called when a command is received from the controller app.
 
-**Parameters:**
-- `requireConfirmation` (SetupConfirmation) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
-- `handler` (function) - Code to run during setup, typically containing `importSettings` call or `setButton` configurations.
+#### `getCommandName()`
 
-**Example:**
-```typescript
-myController.onSetup(SetupConfirmation.Require, function () {
-    myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "A")
-    myController.setButton("2", KeyVisibility.Visible, KeyColor.Red, "B")
-})
-```
+Returns the name of the most recently received command.
 
-#### `importSettings(settingsString)`
+#### `getCommandValue()`
 
-Imports controller configuration from a settings string exported from the app.
-
-**Parameters:**
-- `settingsString` (string) - The settings string copied from the app's export feature
-
-**Example:**
-```typescript
-myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.importSettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
-})
-```
-
-#### `setButton(code, visibility, color, label)`
-
-Configures a button's appearance in the controller app.
-
-**Parameters:**
-- `code` (string) - Button code (e.g., "1", "2", "up", "down")
-- `visibility` (KeyVisibility) - `Visible` or `Hidden`
-- `color` (KeyColor) - `Black`, `Green`, `Blue`, `Yellow`, or `Red`
-- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa fa-heart'></i>`)
-
-**Example:**
-```typescript
-myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, "<i class='fa fa-heart'></i>")
-})
-```
+Returns the value of the most recently received command (for analog inputs).
 
 ### Button Input
 
@@ -211,15 +176,54 @@ Returns `true` if the specified orientation axis has changed.
 **Parameters:**
 - `axis` (InputOrientaton) - `X`, `Y`, `Z`, or `Compass`
 
-### Command Information
+### Setup & Configuration
 
-#### `getCommandName()`
+#### `onSetup(requireConfirmation, handler)`
 
-Returns the name of the most recently received command.
+Configures the controller interface when the app connects.
 
-#### `getCommandValue()`
+**Parameters:**
+- `requireConfirmation` (SetupConfirmation) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
+- `handler` (function) - Code to run during setup, typically containing `importSettings` call or `setButton` configurations.
 
-Returns the value of the most recently received command (for analog inputs).
+**Example:**
+```typescript
+myController.onSetup(SetupConfirmation.Require, function () {
+    myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "A")
+    myController.setButton("2", KeyVisibility.Visible, KeyColor.Red, "B")
+})
+```
+
+#### `importSettings(settingsString)`
+
+Imports controller configuration from a settings string exported from the app.
+
+**Parameters:**
+- `settingsString` (string) - The settings string copied from the app's export feature
+
+**Example:**
+```typescript
+myController.onSetup(SetupConfirmation.NoRequire, function () {
+    myController.importSettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
+})
+```
+
+#### `setButton(code, visibility, color, label)`
+
+Configures a button's appearance in the controller app.
+
+**Parameters:**
+- `code` (string) - Button code (e.g., "1", "2", "up", "down")
+- `visibility` (KeyVisibility) - `Visible` or `Hidden`
+- `color` (KeyColor) - `Black`, `Green`, `Blue`, `Yellow`, or `Red`
+- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa fa-heart'></i>`)
+
+**Example:**
+```typescript
+myController.onSetup(SetupConfirmation.NoRequire, function () {
+    myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, "<i class='fa fa-heart'></i>")
+})
+```
 
 ## 💡 Examples
 
