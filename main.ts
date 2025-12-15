@@ -1,6 +1,9 @@
 /**
- * My Controller - blocks for controlling a micro:bit via Bluetooth or WebUSB from the app My micro:bit.
+ * My Controller - virtual controller.
+ * Controlling a micro:bit from the app My micro:bit.
+ * 
  * This extension allows you to:
+ * - Controlling a micro:bit via Bluetooth or WebUSB from the app My micro:bit Controller
  * - Receive button presses and releases
  * - Read slider values
  * - Get joystick positions
