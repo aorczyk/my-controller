@@ -1,3 +1,8 @@
+/**
+ * My Controller tests
+ * Example code for controlling a dot on a micro:bit screen using arrow keys, sliders, joystick, and device orientation.
+ */
+
 myController.onCommand(function () {
     led.unplot(ledX, ledY)
     if (myController.isSlider(InputSide.Right) || myController.isJoystick(InputSide.Right, JoystickDirection.x) || myController.isOrientation(InputOrientaton.x)) {
