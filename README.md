@@ -36,7 +36,7 @@ Add this extension to your MakeCode project:
 
 #### `onCommand()`
 
-Registers a handler function to be called when a command is received from the controller app.
+Runs the code inside when any command is received from the controller. Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
 
 #### `getCommandName()`
 
