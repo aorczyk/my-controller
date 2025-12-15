@@ -278,26 +278,12 @@ led.plot(ledX, ledY)
 
 For more detailed documentation and tutorials, visit the [my micro:bit](https://mymicrobit.medlight.pl/).
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Copyright (C) 2025 Adam Orczyk
 
-## 🎯 Supported Targets
+Licensed under the MIT License (MIT). See LICENSE file for more details.
 
-- **micro:bit** (v2 recommended)
-- **PXT/MakeCode**
-
-## 🔗 Links
-
-- [my micro:bit](https://mymicrobit.medlight.pl/)
-- [MakeCode Editor](https://makecode.microbit.org/)
-- [micro:bit Website](https://microbit.org/)
-
----
-
-> 📱 Open this page at [https://aorczyk.github.io/my-controller/](https://aorczyk.github.io/my-controller/)
-
-#### Metadata (used for search, rendering)
+## Supported targets
 
 * for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
