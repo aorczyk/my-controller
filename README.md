@@ -30,22 +30,9 @@ Add this extension to your MakeCode project:
 4. Search for `https://github.com/aorczyk/my-controller`
 5. Click to import
 
-### Quick Start Example - Detect button "1" press and release:
-
-```typescript
-myController.onCommand(function () {
-    if (myController.isKey("1", KeyState.Pressed)) {
-        led.plot(2, 2)
-    }
-    if (myController.isKey("1", KeyState.Released)) {
-        led.unplot(2, 2)
-    }
-})
-```
-
 ## 📚 API Reference
 
-### Command Information
+### Commands handling
 
 #### `onCommand()`
 
