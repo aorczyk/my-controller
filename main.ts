@@ -42,7 +42,7 @@ const enum MyControllerJoystickDirection {
     y = 2,
 }
 
-const enum InputOrientaton {
+const enum MyControllerInputOrientaton {
     //% block="x"
     x = 1,
     //% block="y"
@@ -80,7 +80,7 @@ const enum MyControllerKeyVisibility {
     Hidden = 0,
 }
 
-const enum SetupConfirmation {
+const enum MyControllerSetupConfirmation {
     //% block="require confirmation"
     Require = 1,
     //% block="no confirmation"
@@ -125,18 +125,16 @@ namespace myController {
     //% weight=1
     //% data.defl=''
     export function enableBluetooth() {
-        if (typeof bluetooth !== "undefined") {
-            bluetooth.startUartService()
+        bluetooth.startUartService()
 
-            bluetooth.onBluetoothConnected(() => {
-                btConnected = true;
-                pressedKeys = {};
-            })
+        bluetooth.onBluetoothConnected(() => {
+            btConnected = true;
+            pressedKeys = {};
+        })
 
-            bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-                onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
-            })
-        }
+        bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+        })
     }
 
 
