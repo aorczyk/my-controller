@@ -26,7 +26,7 @@ const enum MyControllerKeyCode {
     Enter = 5,
     //% block="Space"
     Space = 6,
-}v
+}
 
 const enum MyControllerInputSide {
     //% block="right"
