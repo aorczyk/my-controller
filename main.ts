@@ -14,13 +14,6 @@
  */
 
 
-const enum MyControllerInputSide {
-    //% block="right"
-    Right = 1,
-    //% block="left"
-    Left = 2,
-}
-
 const enum MyControllerJoystickDirection {
     //% block="x"
     x = 1,
@@ -100,6 +93,13 @@ namespace myController {
         Enter = 5,
         //% block="Space"
         Space = 6,
+    }
+
+    export const enum MyControllerInputSide {
+        //% block="right"
+        Right = 1,
+        //% block="left"
+        Left = 2,
     }
 
     function onDataReceived(command: string) {

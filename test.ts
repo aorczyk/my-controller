@@ -5,10 +5,10 @@
 
 myController.onCommand(function () {
     led.unplot(ledX, ledY)
-    if (myController.isSlider(MyControllerInputSide.Right) || myController.isJoystick(MyControllerInputSide.Right, MyControllerJoystickDirection.x) || myController.isOrientation(MyControllerInputOrientaton.x)) {
+    if (myController.isSlider(myController.MyControllerInputSide.Right) || myController.isJoystick(myController.MyControllerInputSide.Right, MyControllerJoystickDirection.x) || myController.isOrientation(MyControllerInputOrientaton.x)) {
         ledX = myController.getCommandValue() + 2
     }
-    if (myController.isSlider(MyControllerInputSide.Left) || myController.isJoystick(MyControllerInputSide.Right, MyControllerJoystickDirection.y) || myController.isOrientation(MyControllerInputOrientaton.y)) {
+    if (myController.isSlider(myController.MyControllerInputSide.Left) || myController.isJoystick(myController.MyControllerInputSide.Right, MyControllerJoystickDirection.y) || myController.isOrientation(MyControllerInputOrientaton.y)) {
         ledY = myController.getCommandValue() + 2
     }
     if (myController.isKey(myController.getKeyCodeValue(myController.MyControllerKeyCode.ArrowDown), MyControllerKeyState.Released) || myController.isKey(myController.getKeyCodeValue(myController.MyControllerKeyCode.ArrowUp), MyControllerKeyState.Released)) {
