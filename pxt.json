@@ -1,6 +1,7 @@
 {
     "name": "My Controller",
     "description": "",
+    "license": "MIT",
     "dependencies": {
         "core": "*",
         "bluetooth": "*"

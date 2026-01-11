@@ -116,6 +116,8 @@ namespace myController {
         latestCommands[commandName] = parseFloat(commandValue)
     }
 
+    // Initialize Bluetooth UART service and serial communication.
+
     bluetooth.startUartService()
     bluetooth.onBluetoothConnected(() => {
         btConnected = true;
@@ -125,10 +127,13 @@ namespace myController {
         onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
     })
 
+    // Initialize serial communication for WebUSB.
+
     serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        serialConnected = true;
         onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
     })
+
+    // Main loop to process incoming commands one by one.
 
     basic.forever(function () {
         if (Object.keys(latestCommands).length) {
@@ -140,6 +145,8 @@ namespace myController {
             commandsHandler()
         }
     })
+
+    // Blocks
 
     /**
      * Runs the code inside when any command is received from the controller.
@@ -337,6 +344,8 @@ namespace myController {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
+            } else if (commandName == "usbOn") {
+                serialConnected = true;
             }
         };
     }
@@ -373,10 +382,9 @@ namespace myController {
     //% group="Setup"
     export function sendData(data: string) {
         if (btConnected) {
-            try {
-                bluetooth.uartWriteLine(data)
-            } catch (e) {}
+            bluetooth.uartWriteLine(data)
         }
+
         if (serialConnected) {
             serial.writeLine(data)
         }
