@@ -126,17 +126,14 @@ namespace myController {
     //% data.defl=''
     export function enableBluetooth() {
         try {
-            // @ts-ignore
-            bluetooth.startUartService()
-            // @ts-ignore
-            bluetooth.onBluetoothConnected(() => {
+            const bt = (this as any).bluetooth;
+            bt.startUartService()
+            bt.onBluetoothConnected(() => {
                 btConnected = true;
                 pressedKeys = {};
             })
-            // @ts-ignore
-            bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-                // @ts-ignore
-                onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+            bt.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+                onDataReceived(bt.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
             })
         } catch (e) {
             // Bluetooth module not available
@@ -392,8 +389,10 @@ namespace myController {
     //% group="Setup"
     export function sendData(data: string) {
         if (btConnected) {
-            // @ts-ignore
-            bluetooth.uartWriteLine(data)
+            try {
+                const bt = (this as any).bluetooth;
+                bt.uartWriteLine(data)
+            } catch (e) {}
         }
         if (serialConnected) {
             serial.writeLine(data)
