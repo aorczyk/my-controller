@@ -130,6 +130,7 @@ namespace myController {
     // Initialize serial communication for WebUSB.
 
     serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+        serialConnected = true;
         onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
     })
 
@@ -344,8 +345,6 @@ namespace myController {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
-            } else if (commandName == "usbOn") {
-                serialConnected = true;
             }
         };
     }
