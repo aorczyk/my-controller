@@ -13,59 +13,6 @@
  * (c) 2025, Adam Orczyk
  */
 
-
-const enum MyControllerJoystickDirection {
-    //% block="x"
-    x = 1,
-    //% block="y"
-    y = 2,
-}
-
-const enum MyControllerInputOrientaton {
-    //% block="x"
-    x = 1,
-    //% block="y"
-    y = 2,
-    //% block="z"
-    z = 3,
-    //% block="compass"
-    c = 4,
-}
-
-const enum MyControllerKeyState {
-    //% block="pressed"
-    Pressed = 1,
-    //% block="released"
-    Released = 0,
-}
-
-const enum MyControllerKeyColor {
-    //% block="black"
-    Black = 0,
-    //% block="green"
-    Green = 1,
-    //% block="blue"
-    Blue = 2,
-    //% block="yellow"
-    Yellow = 3,
-    //% block="red"
-    Red = 4,
-}
-
-const enum MyControllerKeyVisibility {
-    //% block="visible"
-    Visible = 1,
-    //% block="hidden"
-    Hidden = 0,
-}
-
-const enum MyControllerSetupConfirmation {
-    //% block="require confirmation"
-    Require = 1,
-    //% block="no confirmation"
-    NoRequire = 0,
-}
-
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
     // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
@@ -80,7 +27,7 @@ namespace myController {
     let btConnected = false;
     let serialConnected = false;
 
-    export const enum MyControllerKeyCode {
+    export const enum KeyCode {
         //% block="Arrow Up"
         ArrowUp = 1,
         //% block="Arrow Down"
@@ -95,11 +42,63 @@ namespace myController {
         Space = 6,
     }
 
-    export const enum MyControllerInputSide {
+    export const enum InputSide {
         //% block="right"
         Right = 1,
         //% block="left"
         Left = 2,
+    }
+
+    export const enum JoystickDirection {
+        //% block="x"
+        x = 1,
+        //% block="y"
+        y = 2,
+    }
+
+    export const enum InputOrientaton {
+        //% block="x"
+        x = 1,
+        //% block="y"
+        y = 2,
+        //% block="z"
+        z = 3,
+        //% block="compass"
+        c = 4,
+    }
+
+    export const enum KeyState {
+        //% block="pressed"
+        Pressed = 1,
+        //% block="released"
+        Released = 0,
+    }
+
+    export const enum KeyColor {
+        //% block="black"
+        Black = 0,
+        //% block="green"
+        Green = 1,
+        //% block="blue"
+        Blue = 2,
+        //% block="yellow"
+        Yellow = 3,
+        //% block="red"
+        Red = 4,
+    }
+
+    export const enum KeyVisibility {
+        //% block="visible"
+        Visible = 1,
+        //% block="hidden"
+        Hidden = 0,
+    }
+
+    export const enum SetupConfirmation {
+        //% block="require confirmation"
+        Require = 1,
+        //% block="no confirmation"
+        NoRequire = 0,
     }
 
     function onDataReceived(command: string) {
@@ -182,21 +181,21 @@ namespace myController {
      * @param keyState the state to check for (pressed or released)
      */
     //% blockId=myController_is_key
-    //% block="button %keyCode %MyControllerKeyState"
+    //% block="button %keyCode %KeyState"
     //% weight=89
     //% group="Buttons"
-    export function isKey(keyCode: string, keyState: MyControllerKeyState) {
+    export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
         return keyState ? pressedKeys[code] : (commandName == '!' + code)
     }
 
     const KeyCodeLabel: { [n: number]: string } = {
-        [MyControllerKeyCode.ArrowUp]: "up",
-        [MyControllerKeyCode.ArrowDown]: "down",
-        [MyControllerKeyCode.ArrowRight]: "right",
-        [MyControllerKeyCode.ArrowLeft]: "left",
-        [MyControllerKeyCode.Enter]: "enter",
-        [MyControllerKeyCode.Space]: "space",
+        [KeyCode.ArrowUp]: "up",
+        [KeyCode.ArrowDown]: "down",
+        [KeyCode.ArrowRight]: "right",
+        [KeyCode.ArrowLeft]: "left",
+        [KeyCode.Enter]: "enter",
+        [KeyCode.Space]: "space",
     }
 
     /**
@@ -204,10 +203,10 @@ namespace myController {
      * @param keyCode the button to get the code for
      */
     //% blockId=myController_key_code_value
-    //% block="code of %MyControllerKeyCode button"
+    //% block="code of %KeyCode button"
     //% weight=87
     //% group="Buttons"
-    export function getKeyCodeValue(keyCode: MyControllerKeyCode) {
+    export function getKeyCodeValue(keyCode: KeyCode) {
         return KeyCodeLabel[keyCode] || ""
     }
 
@@ -272,10 +271,10 @@ namespace myController {
      * @param inputSide the slider side to check
      */
     //% blockId=myController_is_slider
-    //% block="%MyControllerInputSide slider changed"
+    //% block="%InputSide slider changed"
     //% weight=79
     //% group="Inputs"
-    export function isSlider(inputSide: MyControllerInputSide) {
+    export function isSlider(inputSide: InputSide) {
         return commandName == (inputSide == 1 ? 'sr' : 'sl')
     }
 
@@ -285,10 +284,10 @@ namespace myController {
      * @param inputDirection the joystick axis to check
      */
     //% blockId=myController_is_joystick
-    //% block="%MyControllerInputSide joystick %MyControllerJoystickDirection changed"
+    //% block="%InputSide joystick %JoystickDirection changed"
     //% weight=69
     //% group="Inputs"
-    export function isJoystick(inputSide: MyControllerInputSide, inputDirection: MyControllerJoystickDirection) {
+    export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
         return commandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
     }
 
@@ -297,10 +296,10 @@ namespace myController {
      * @param inputOrient the orientation axis to check
      */
     //% blockId=myController_is_orientation
-    //% block="orientation %MyControllerInputOrientaton changed"
+    //% block="orientation %InputOrientaton changed"
     //% weight=67
     //% group="Inputs"
-    export function isOrientation(inputOrient: MyControllerInputOrientaton) {
+    export function isOrientation(inputOrient: InputOrientaton) {
         let modes = {
             1: 'ox',
             2: 'oy',
@@ -317,12 +316,12 @@ namespace myController {
      * @param handler code to run during setup
      */
     //% blockId="myController_setup"
-    //% block="setup %MyControllerSetupConfirmation"
+    //% block="setup %SetupConfirmation"
     //% weight=51
-    //% requireConfirmation.defl=MyControllerSetupConfirmation.Require
+    //% requireConfirmation.defl=SetupConfirmation.Require
     //% group="Setup"
     export function onSetup(
-        requireConfirmation: MyControllerSetupConfirmation,
+        requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
         setup = () => {
@@ -396,14 +395,14 @@ namespace myController {
     //% inlineInputMode=inline
     //% weight=48
     //% code.defl=''
-    //% visibility.defl=MyControllerKeyVisibility.Visible
-    //% color.defl=MyControllerKeyColor.Black
+    //% visibility.defl=KeyVisibility.Visible
+    //% color.defl=KeyColor.Black
     //% label.defl=''
     //% group="Setup"
     export function setButton(
         code: string,
-        visibility: MyControllerKeyVisibility,
-        color?: MyControllerKeyColor,
+        visibility: KeyVisibility,
+        color?: KeyColor,
         label?: string | number
     ) {
         sendData(['vc;b', code, visibility, color, label,].join(';'));
