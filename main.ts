@@ -13,6 +13,15 @@
  * (c) 2025, Adam Orczyk
  */
 
+// Deklaracja namespace bluetooth (opcjonalny moduł)
+namespace bluetooth {
+    export function startUartService(): void {}
+    export function onBluetoothConnected(handler: () => void): void {}
+    export function onUartDataReceived(delimiter: string, handler: () => void): void {}
+    export function uartReadUntil(delimiter: string): string { return "" }
+    export function uartWriteLine(data: string): void {}
+}
+
 const enum MyControllerKeyCode {
     //% block="Arrow Up"
     ArrowUp = 1,
@@ -126,14 +135,13 @@ namespace myController {
     //% data.defl=''
     export function enableBluetooth() {
         try {
-            const bt = (globalThis as any).bluetooth;
-            bt.startUartService()
-            bt.onBluetoothConnected(() => {
+            bluetooth.startUartService()
+            bluetooth.onBluetoothConnected(() => {
                 btConnected = true;
                 pressedKeys = {};
             })
-            bt.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-                onDataReceived(bt.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+            bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+                onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
             })
         } catch (e) {
             // Bluetooth module not available
@@ -390,8 +398,7 @@ namespace myController {
     export function sendData(data: string) {
         if (btConnected) {
             try {
-                const bt = (globalThis as any).bluetooth;
-                bt.uartWriteLine(data)
+                bluetooth.uartWriteLine(data)
             } catch (e) {}
         }
         if (serialConnected) {
