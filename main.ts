@@ -13,15 +13,6 @@
  * (c) 2025, Adam Orczyk
  */
 
-// Deklaracja namespace bluetooth (opcjonalny moduł)
-namespace bluetooth {
-    export function startUartService(): void {}
-    export function onBluetoothConnected(handler: () => void): void {}
-    export function onUartDataReceived(delimiter: string, handler: () => void): void {}
-    export function uartReadUntil(delimiter: string): string { return "" }
-    export function uartWriteLine(data: string): void {}
-}
-
 const enum MyControllerKeyCode {
     //% block="Arrow Up"
     ArrowUp = 1,
@@ -125,29 +116,14 @@ namespace myController {
         latestCommands[commandName] = parseFloat(commandValue)
     }
 
-    /**
-     * Sends a raw data command to the controller app via Bluetooth or WebUSB.
-     */
-    //% blockId="myController_bluetooth_enable"
-    //% block="enable Bluetooth"
-    //% inlineInputMode=inline
-    //% weight=100
-    //% data.defl=''
-    export function enableBluetooth() {
-        try {
-            bluetooth.startUartService()
-            bluetooth.onBluetoothConnected(() => {
-                btConnected = true;
-                pressedKeys = {};
-            })
-            bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-                onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
-            })
-        } catch (e) {
-            // Bluetooth module not available
-        }
-    }
-
+    bluetooth.startUartService()
+    bluetooth.onBluetoothConnected(() => {
+        btConnected = true;
+        pressedKeys = {};
+    })
+    bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+        onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+    })
 
     serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         serialConnected = true;
