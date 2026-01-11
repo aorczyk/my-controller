@@ -125,7 +125,7 @@ namespace myController {
     //% weight=1
     //% data.defl=''
     export function enableBluetooth() {
-        if (typeof bluetooth !== "undefined") {
+        try {
             bluetooth.startUartService()
 
             bluetooth.onBluetoothConnected(() => {
@@ -136,6 +136,8 @@ namespace myController {
             bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
                 onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
             })
+        } catch (e) {
+            // Bluetooth module not available
         }
     }
 
