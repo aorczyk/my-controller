@@ -42,7 +42,7 @@ const enum MyControllerJoystickDirection {
     y = 2,
 }
 
-const enum InputOrientaton {
+const enum MyControllerInputOrientaton {
     //% block="x"
     x = 1,
     //% block="y"
@@ -80,7 +80,7 @@ const enum MyControllerKeyVisibility {
     Hidden = 0,
 }
 
-const enum SetupConfirmation {
+const enum MyControllerSetupConfirmation {
     //% block="require confirmation"
     Require = 1,
     //% block="no confirmation"
