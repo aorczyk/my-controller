@@ -2,8 +2,7 @@
     "name": "My Controller",
     "description": "",
     "dependencies": {
-        "core": "*",
-        "bluetooth": "*"
+        "core": "*"
     },
     "files": [
         "main.blocks",
