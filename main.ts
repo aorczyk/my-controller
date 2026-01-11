@@ -13,20 +13,6 @@
  * (c) 2025, Adam Orczyk
  */
 
-const enum MyControllerKeyCode {
-    //% block="Arrow Up"
-    ArrowUp = 1,
-    //% block="Arrow Down"
-    ArrowDown = 2,
-    //% block="Arrow Right"
-    ArrowRight = 3,
-    //% block="Arrow Left"
-    ArrowLeft = 4,
-    //% block="Enter"
-    Enter = 5,
-    //% block="Space"
-    Space = 6,
-}
 
 const enum MyControllerInputSide {
     //% block="right"
@@ -100,6 +86,21 @@ namespace myController {
     let commandsHandler: () => void = () => {};
     let btConnected = false;
     let serialConnected = false;
+
+    export const enum MyControllerKeyCode {
+        //% block="Arrow Up"
+        ArrowUp = 1,
+        //% block="Arrow Down"
+        ArrowDown = 2,
+        //% block="Arrow Right"
+        ArrowRight = 3,
+        //% block="Arrow Left"
+        ArrowLeft = 4,
+        //% block="Enter"
+        Enter = 5,
+        //% block="Space"
+        Space = 6,
+    }
 
     function onDataReceived(command: string) {
         let [commandName, commandValue] = command.split("=")
