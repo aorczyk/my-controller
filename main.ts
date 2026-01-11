@@ -126,7 +126,7 @@ namespace myController {
     //% data.defl=''
     export function enableBluetooth() {
         try {
-            const bt = (this as any).bluetooth;
+            const bt = (globalThis as any).bluetooth;
             bt.startUartService()
             bt.onBluetoothConnected(() => {
                 btConnected = true;
@@ -390,7 +390,7 @@ namespace myController {
     export function sendData(data: string) {
         if (btConnected) {
             try {
-                const bt = (this as any).bluetooth;
+                const bt = (globalThis as any).bluetooth;
                 bt.uartWriteLine(data)
             } catch (e) {}
         }
