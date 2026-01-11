@@ -122,7 +122,7 @@ namespace myController {
     //% blockId="myController_bluetooth_enable"
     //% block="enable Bluetooth"
     //% inlineInputMode=inline
-    //% weight=1
+    //% weight=100
     //% data.defl=''
     export function enableBluetooth() {
         try {
