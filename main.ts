@@ -126,14 +126,16 @@ namespace myController {
     //% data.defl=''
     export function enableBluetooth() {
         try {
+            // @ts-ignore
             bluetooth.startUartService()
-
+            // @ts-ignore
             bluetooth.onBluetoothConnected(() => {
                 btConnected = true;
                 pressedKeys = {};
             })
-
+            // @ts-ignore
             bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+                // @ts-ignore
                 onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
             })
         } catch (e) {
@@ -390,6 +392,7 @@ namespace myController {
     //% group="Setup"
     export function sendData(data: string) {
         if (btConnected) {
+            // @ts-ignore
             bluetooth.uartWriteLine(data)
         }
         if (serialConnected) {
