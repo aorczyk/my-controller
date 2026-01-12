@@ -116,23 +116,6 @@ namespace myController {
         latestCommands[commandName] = parseFloat(commandValue)
     }
 
-    // Initialize Bluetooth UART service and serial communication.
-
-    bluetooth.startUartService()
-    bluetooth.onBluetoothConnected(() => {
-        btConnected = true;
-        pressedKeys = {};
-    })
-    bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
-    })
-
-    // Initialize serial communication for WebUSB.
-
-    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
-    })
-
     // Main loop to process incoming commands one by one.
 
     basic.forever(function () {
@@ -147,6 +130,39 @@ namespace myController {
     })
 
     // Blocks
+
+    /**
+     * Initializes Bluetooth communication with the controller app.
+     */
+    //% blockId=myController_use_bluetooth
+    //% block="use Bluetooth"
+    //% weight=100
+    export function useBluetooth() {
+        // Initialize Bluetooth UART service and serial communication.
+
+        bluetooth.startUartService()
+        bluetooth.onBluetoothConnected(() => {
+            btConnected = true;
+            pressedKeys = {};
+        })
+        bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+        })
+    }
+
+    /**
+     * Initializes WebUSB communication with the controller app.
+     */
+    //% blockId=myController_use_serial
+    //% block="use Serial"
+    //% weight=99
+    export function useSerial() {
+        // Initialize serial communication for WebUSB.
+
+        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
+        })
+    }
 
     /**
      * Runs the code inside when any command is received from the controller.
@@ -346,6 +362,7 @@ namespace myController {
                 sendData('vc;loader;0;')
             } else if (commandName == "usbOn") {
                 serialConnected = true;
+                pressedKeys = {};
             }
         };
     }
