@@ -158,7 +158,9 @@ namespace myController {
     //% weight=99
     export function useSerial() {
         // Initialize serial communication for WebUSB.
-
+        serial.setWriteLinePadding(0)
+        serial.setTxBufferSize(240)
+        serial.setRxBufferSize(240)
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
         })
