@@ -17,8 +17,13 @@
 namespace myController {
     // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
     let latestCommands: { [key: string]: number } = {};
-    let commandName: string;
-    let commandValue: number;
+
+    //% blockId=myController_c_name
+    //% block="command name"
+    //% weight=100
+    export let commandName: string;
+    
+    export let commandValue: number;
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
