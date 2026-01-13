@@ -17,13 +17,8 @@
 namespace myController {
     // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
     let latestCommands: { [key: string]: number } = {};
-
-    //% blockId=myController_c_name
-    //% block="command name"
-    //% weight=100
-    export let commandName: string;
-    
-    export let commandValue: number;
+    let latestCommandName: string;
+    let latestCommandValue: number;
     // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
     let pressedKeys: { [key: string]: boolean } = {};
     let buttonStates: { [key: string]: number } = {};
@@ -107,27 +102,27 @@ namespace myController {
     }
 
     function onDataReceived(command: string) {
-        let [commandName, commandValue] = command.split("=")
+        let [latestCommandName, latestCommandValue] = command.split("=")
 
         // Button press/release or some other non-numeric command (to be handled later).
-        if (commandValue == undefined) {
-            if (commandName[0] == '!') {
-                delete pressedKeys[commandName.slice(1)]
+        if (latestCommandValue == undefined) {
+            if (latestCommandName[0] == '!') {
+                delete pressedKeys[latestCommandName.slice(1)]
             } else {
-                pressedKeys[commandName] = true
+                pressedKeys[latestCommandName] = true
             }
         }
 
-        latestCommands[commandName] = parseFloat(commandValue)
+        latestCommands[latestCommandName] = parseFloat(latestCommandValue)
     }
 
     // Main loop to process incoming commands one by one.
 
     basic.forever(function () {
         if (Object.keys(latestCommands).length) {
-            commandName = Object.keys(latestCommands)[0]
-            commandValue = latestCommands[commandName]
-            delete latestCommands[commandName];
+            latestCommandName = Object.keys(latestCommands)[0]
+            latestCommandValue = latestCommands[latestCommandName]
+            delete latestCommands[latestCommandName];
 
             setup()
             commandsHandler()
@@ -191,8 +186,8 @@ namespace myController {
     //% blockId=myController_command_name
     //% block="command name"
     //% weight=91
-    export function getCommandName() {
-        return commandName
+    export function commandName() {
+        return latestCommandName
     }
 
     /**
@@ -201,8 +196,8 @@ namespace myController {
     //% blockId=myController_command_value
     //% block="command value"
     //% weight=90
-    export function getCommandValue() {
-        return commandValue
+    export function commandValue() {
+        return latestCommandValue
     }
 
     /**
@@ -216,7 +211,7 @@ namespace myController {
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
-        return keyState ? pressedKeys[code] : (commandName == '!' + code)
+        return keyState ? pressedKeys[code] : (latestCommandName == '!' + code)
     }
 
     const KeyCodeLabel: { [n: number]: string } = {
@@ -248,7 +243,7 @@ namespace myController {
     //% weight=86
     //% group="Buttons"
     export function areAllKeysReleased() {
-        return commandName == 'none'
+        return latestCommandName == 'none'
     }
 
     /**
@@ -261,13 +256,13 @@ namespace myController {
     //% group="Buttons"
     export function buttonToggled(
     ) {
-        if (!buttonStates[commandName]) {
-            buttonStates[commandName] = 1;
+        if (!buttonStates[latestCommandName]) {
+            buttonStates[latestCommandName] = 1;
         } else {
-            buttonStates[commandName] = 0;
+            buttonStates[latestCommandName] = 0;
         }
 
-        return buttonStates[commandName] == 1;
+        return buttonStates[latestCommandName] == 1;
     }
 
     /**
@@ -283,17 +278,17 @@ namespace myController {
     export function buttonToggleCount(
         toggleMaxCount: number = 1,
     ) {
-        if (buttonStates[commandName] == undefined) {
-            buttonStates[commandName] = 0;
+        if (buttonStates[latestCommandName] == undefined) {
+            buttonStates[latestCommandName] = 0;
         }
 
-        if (buttonStates[commandName] < toggleMaxCount) {
-            buttonStates[commandName] += 1;
+        if (buttonStates[latestCommandName] < toggleMaxCount) {
+            buttonStates[latestCommandName] += 1;
         } else {
-            buttonStates[commandName] = 0;
+            buttonStates[latestCommandName] = 0;
         }
 
-        return buttonStates[commandName];
+        return buttonStates[latestCommandName];
     }
 
     /**
@@ -305,7 +300,7 @@ namespace myController {
     //% weight=79
     //% group="Inputs"
     export function isSlider(inputSide: InputSide) {
-        return commandName == (inputSide == 1 ? 'sr' : 'sl')
+        return latestCommandName == (inputSide == 1 ? 'sr' : 'sl')
     }
 
     /**
@@ -318,7 +313,7 @@ namespace myController {
     //% weight=69
     //% group="Inputs"
     export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
-        return commandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
+        return latestCommandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
     }
 
     /**
@@ -336,7 +331,7 @@ namespace myController {
             3: 'oz',
             4: 'oc',
         }
-        return commandName == modes[inputOrient]
+        return latestCommandName == modes[inputOrient]
     }
 
 
@@ -355,7 +350,7 @@ namespace myController {
         handler: () => void,
     ) {
         setup = () => {
-            if (commandName == "-v") {
+            if (latestCommandName == "-v") {
                 if (requireConfirmation) {
                     sendData('vc;hasSettings;1;')
                 } else {
@@ -363,11 +358,11 @@ namespace myController {
                     handler()
                     sendData('vc;loader;0;')
                 }
-            } else if (commandName == "getSettings") {
+            } else if (latestCommandName == "getSettings") {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
-            } else if (commandName == "usbOn") {
+            } else if (latestCommandName == "usbOn") {
                 serialConnected = true;
                 pressedKeys = {};
             }
