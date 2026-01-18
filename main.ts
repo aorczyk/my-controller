@@ -28,17 +28,17 @@ namespace myController {
     let serialConnected = false;
 
     export const enum KeyCode {
-        //% block="Arrow Up"
+        //% block="arrow up"
         ArrowUp = 1,
-        //% block="Arrow Down"
+        //% block="arrow down"
         ArrowDown = 2,
-        //% block="Arrow Right"
+        //% block="arrow right"
         ArrowRight = 3,
-        //% block="Arrow Left"
+        //% block="arrow left"
         ArrowLeft = 4,
-        //% block="Enter"
+        //% block="enter"
         Enter = 5,
-        //% block="Space"
+        //% block="space"
         Space = 6,
     }
 
@@ -51,20 +51,20 @@ namespace myController {
 
     export const enum JoystickDirection {
         //% block="x"
-        x = 1,
+        X = 1,
         //% block="y"
-        y = 2,
+        Y = 2,
     }
 
     export const enum InputOrientation {
         //% block="x"
-        x = 1,
+        X = 1,
         //% block="y"
-        y = 2,
+        Y = 2,
         //% block="z"
-        z = 3,
+        Z = 3,
         //% block="compass"
-        c = 4,
+        Compass = 4,
     }
 
     export const enum KeyState {
@@ -423,9 +423,10 @@ namespace myController {
      * @param label optional text or number to display on the button
      */
     //% blockId="myController_set_button_color"
-    //% block="set button $code|$visibility|$color|label $label"
+    //% block="set button $code|$visibility|$color || label $label"
     //% inlineInputMode=inline
     //% weight=48
+    //% expandableArgumentMode="toggle"
     //% code.defl=''
     //% visibility.defl=KeyVisibility.Visible
     //% color.defl=KeyColor.Black
