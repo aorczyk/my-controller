@@ -2,6 +2,9 @@
 
 > Control your micro:bit wirelessly via Bluetooth or USB from an app [my micro:bit](https://mymicrobit.medlight.pl/)
 
+> [!NOTE]
+> micro:bit (V2) only
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![micro:bit](https://img.shields.io/badge/micro%3Abit-v2-blue)](https://microbit.org/)
 [![MakeCode](https://img.shields.io/badge/MakeCode-Extension-orange)](https://makecode.microbit.org/)

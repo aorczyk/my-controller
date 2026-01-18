@@ -1,6 +1,6 @@
 {
     "name": "My Controller",
-    "description": "",
+    "description": "A MakeCode extension that enables control of your micro:bit through an app https://mymicrobit.medlight.pl/ using Bluetooth or WebUSB (micro:bit (V2) only).",
     "license": "MIT",
     "dependencies": {
         "core": "*",
@@ -33,5 +33,8 @@
                 }
             }
         }
-    }
+    },
+    "disablesVariants": [
+        "mbdal"
+    ]
 }
