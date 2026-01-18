@@ -56,7 +56,7 @@ namespace myController {
         y = 2,
     }
 
-    export const enum InputOrientaton {
+    export const enum InputOrientation {
         //% block="x"
         x = 1,
         //% block="y"
@@ -321,17 +321,17 @@ namespace myController {
      * @param inputOrient the orientation axis to check
      */
     //% blockId=myController_is_orientation
-    //% block="orientation %InputOrientaton changed"
+    //% block="orientation %InputOrientation changed"
     //% weight=67
     //% group="Inputs"
-    export function isOrientation(inputOrientaton: InputOrientaton) {
+    export function isOrientation(inputOrientation: InputOrientation) {
         let modes = {
             1: 'ox',
             2: 'oy',
             3: 'oz',
             4: 'oc',
         }
-        return latestCommandName == modes[inputOrientaton]
+        return latestCommandName == modes[inputOrientation]
     }
 
 
