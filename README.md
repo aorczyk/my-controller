@@ -30,19 +30,44 @@ Add this extension to your MakeCode project:
 4. Search for `https://github.com/aorczyk/my-controller`
 5. Click to import
 
+**Note:** This extension includes Bluetooth functionality, which will automatically remove other radio features from your project due to micro:bit Bluetooth limitations. The extension automatically manages the Bluetooth UART service for communication.
+
 ## 📚 API Reference
+
+### Communication
+
+#### `useBluetooth()`
+
+Initializes Bluetooth communication with the controller app. Call this at the start of your program to enable Bluetooth control.
+
+**Example:**
+```typescript
+myController.useBluetooth()
+```
+
+#### `useSerial()`
+
+Initializes WebUSB communication with the controller app. Call this at the start of your program to enable WebUSB control.
+
+**Example:**
+```typescript
+myController.useSerial()
+```
 
 ### Commands handling
 
-#### `onCommand()`
+#### `onCommand(handler)`
 
 Runs the code inside when any command is received from the controller. Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
 
-#### `getCommandName()`
+**Parameters:**
+- `handler` (function) - Code to run when a command is received
+
+#### `commandName()`
 
 Returns the name of the most recently received command.
 
-#### `getCommandValue()`
+#### `commandValue()`
 
 Returns the value of the most recently received command (for analog inputs).
 
@@ -138,7 +163,7 @@ Returns `true` if the specified slider value has changed.
 ```typescript
 myController.onCommand(function () {
     if (myController.isSlider(InputSide.Right)) {
-        led.setBrightness(myController.getCommandValue())
+        led.setBrightness(myController.commandValue())
     }
 })
 myController.onSetup(SetupConfirmation.NoRequire, function () {
@@ -154,14 +179,14 @@ Returns `true` if the specified joystick axis has changed.
 
 **Parameters:**
 - `inputSide` (InputSide) - `Right` or `Left`
-- `direction` (JoystickDirection) - `X` or `Y`
+- `direction` (JoystickDirection) - `x` or `y`
 
 #### `isOrientation(axis)`
 
 Returns `true` if the specified orientation axis has changed.
 
 **Parameters:**
-- `axis` (InputOrientaton) - `X`, `Y`, `Z`, or `Compass`
+- `axis` (InputOrientation) - `x`, `y`, `z`, or `compass`
 
 ### Setup & Configuration
 
@@ -202,8 +227,15 @@ Configures a button's appearance in the controller app.
 **Parameters:**
 - `code` (string) - Button code (e.g., "1", "2", "up", "down")
 - `visibility` (KeyVisibility) - `Visible` or `Hidden`
-- `color` (KeyColor) - `Black`, `Green`, `Blue`, `Yellow`, or `Red`
-- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa fa-heart'></i>`)
+- `color` (KeyColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
+- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa-solid fa-heart'></i>`)
+
+#### `sendData(data)`
+
+Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this block to send custom commands not covered by other blocks.
+
+**Parameters:**
+- `data` (string) - The raw command string to send
 
 **Example:**
 ```typescript
@@ -219,11 +251,11 @@ myController.onSetup(SetupConfirmation.NoRequire, function () {
 ```typescript
 myController.onCommand(function () {
     led.unplot(ledX, ledY)
-    if (myController.isSlider(InputSide.Right) || myController.isJoystick(InputSide.Right, JoystickDirection.x) || myController.isOrientation(InputOrientaton.x)) {
-        ledX = myController.getCommandValue() + 2
+    if (myController.isSlider(InputSide.Right) || myController.isJoystick(InputSide.Right, JoystickDirection.x) || myController.isOrientation(InputOrientation.x)) {
+        ledX = myController.commandValue() + 2
     }
-    if (myController.isSlider(InputSide.Left) || myController.isJoystick(InputSide.Right, JoystickDirection.y) || myController.isOrientation(InputOrientaton.y)) {
-        ledY = myController.getCommandValue() + 2
+    if (myController.isSlider(InputSide.Left) || myController.isJoystick(InputSide.Right, JoystickDirection.y) || myController.isOrientation(InputOrientation.y)) {
+        ledY = myController.commandValue() + 2
     }
     if (myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowDown), KeyState.Released) || myController.isKey(myController.getKeyCodeValue(KeyCode.ArrowUp), KeyState.Released)) {
         ledY = 2
@@ -256,6 +288,7 @@ let ledX = 0
 ledX = 2
 ledY = 2
 led.plot(ledX, ledY)
+myController.useBluetooth()
 ```
 
 ## 📋 Requirements

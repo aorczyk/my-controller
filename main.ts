@@ -137,6 +137,7 @@ namespace myController {
     //% blockId=myController_use_bluetooth
     //% block="use Bluetooth"
     //% weight=100
+    //% group="Communication"
     export function useBluetooth() {
         // Initialize Bluetooth UART service and serial communication.
 
@@ -156,6 +157,7 @@ namespace myController {
     //% blockId=myController_use_serial
     //% block="use Serial"
     //% weight=99
+    //% group="Communication"
     export function useSerial() {
         // Initialize serial communication for WebUSB.
         serial.setWriteLinePadding(0)
@@ -174,6 +176,7 @@ namespace myController {
     //% blockId="myController_on_command"
     //% block="on command received"
     //% weight=92
+    //% group="Commands"
     export function onCommand(
         handler: () => void
     ) {
@@ -186,6 +189,7 @@ namespace myController {
     //% blockId=myController_command_name
     //% block="command name"
     //% weight=91
+    //% group="Commands"
     export function commandName() {
         return latestCommandName
     }
@@ -196,6 +200,7 @@ namespace myController {
     //% blockId=myController_command_value
     //% block="command value"
     //% weight=90
+    //% group="Commands"
     export function commandValue() {
         return latestCommandValue
     }
