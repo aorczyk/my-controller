@@ -324,14 +324,14 @@ namespace myController {
     //% block="orientation %InputOrientaton changed"
     //% weight=67
     //% group="Inputs"
-    export function isOrientation(inputOrient: InputOrientaton) {
+    export function isOrientation(inputOrientaton: InputOrientaton) {
         let modes = {
             1: 'ox',
             2: 'oy',
             3: 'oz',
             4: 'oc',
         }
-        return latestCommandName == modes[inputOrient]
+        return latestCommandName == modes[inputOrientaton]
     }
 
 
