@@ -30,7 +30,8 @@ Add this extension to your MakeCode project:
 4. Search for `https://github.com/aorczyk/my-controller`
 5. Click to import
 
-**Note:** This extension includes Bluetooth functionality, which will automatically remove other radio features from your project due to micro:bit Bluetooth limitations. The extension automatically manages the Bluetooth UART service for communication.
+> [!NOTE]
+> This extension includes Bluetooth functionality, which will automatically remove other radio features from your project due to micro:bit Bluetooth limitations. The extension automatically manages the Bluetooth UART service for communication.
 
 ## 📚 API Reference
 
