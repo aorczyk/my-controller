@@ -15,18 +15,6 @@
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
-    // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
-    let latestCommands: { [key: string]: number } = {};
-    let latestCommandName: string;
-    let latestCommandValue: number;
-    // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
-    let pressedKeys: { [key: string]: boolean } = {};
-    let buttonStates: { [key: string]: number } = {};
-    let setup: () => void = () => {};
-    let commandsHandler: () => void = () => {};
-    let btConnected = false;
-    let serialConnected = false;
-
     export const enum KeyCode {
         //% block="arrow up"
         ArrowUp = 1,
@@ -101,33 +89,66 @@ namespace myController {
         NoRequire = 0,
     }
 
+    class State {
+        // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
+        receivedCommands: { [key: string]: number } = {};
+        receivedCommandName: string;
+        receivedCommandValue: number;
+
+        // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
+        pressedKeys: { [key: string]: boolean } = {};
+
+        // Communication method flags.
+        receivedBLE = false;
+        receivedSerial = false;
+
+        // Storing toggle states and counts for buttons.
+        buttonStates: { [key: string]: number } = {};
+
+        // Handlers
+        commandsHandler: () => void = () => {};
+        setupHandler: () => void = () => {};
+
+        constructor() {}
+    }
+
+    let state : State = undefined;
+
+    function initialize() {
+        if (state != undefined) {
+            return
+        }
+
+        state = new State();
+
+        // Main loop to process incoming commands one by one.
+        basic.forever(function () {
+            if (Object.keys(state.receivedCommands).length) {
+                state.receivedCommandName = Object.keys(state.receivedCommands)[0]
+                state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
+                delete state.receivedCommands[state.receivedCommandName];
+
+                state.setupHandler()
+                state.commandsHandler()
+            }
+        })
+
+    }
+
     function onDataReceived(command: string) {
-        let [latestCommandName, latestCommandValue] = command.split("=")
+        let [commandName, commandValue] = command.split("=")
 
         // Button press/release or some other non-numeric command (to be handled later).
-        if (latestCommandValue == undefined) {
-            if (latestCommandName[0] == '!') {
-                delete pressedKeys[latestCommandName.slice(1)]
+        if (commandValue == undefined) {
+            if (commandName[0] == '!') {
+                delete state.pressedKeys[commandName.slice(1)]
             } else {
-                pressedKeys[latestCommandName] = true
+                state.pressedKeys[commandName] = true
             }
         }
 
-        latestCommands[latestCommandName] = parseFloat(latestCommandValue)
+        state.receivedCommands[commandName] = parseFloat(commandValue)
     }
-
-    // Main loop to process incoming commands one by one.
-
-    basic.forever(function () {
-        if (Object.keys(latestCommands).length) {
-            latestCommandName = Object.keys(latestCommands)[0]
-            latestCommandValue = latestCommands[latestCommandName]
-            delete latestCommands[latestCommandName];
-
-            setup()
-            commandsHandler()
-        }
-    })
 
     // Blocks
 
@@ -139,12 +160,13 @@ namespace myController {
     //% weight=100
     //% group="Communication"
     export function useBluetooth() {
-        // Initialize Bluetooth UART service and serial communication.
+        initialize()
 
+        // Initialize Bluetooth UART service and serial communication.
         bluetooth.startUartService()
         bluetooth.onBluetoothConnected(() => {
-            btConnected = true;
-            pressedKeys = {};
+            state.receivedBLE = true;
+            state.pressedKeys = {};
         })
         bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
@@ -159,6 +181,8 @@ namespace myController {
     //% weight=99
     //% group="Communication"
     export function useSerial() {
+        initialize()
+
         // Initialize serial communication for WebUSB.
         serial.setWriteLinePadding(0)
         serial.setTxBufferSize(240)
@@ -180,7 +204,7 @@ namespace myController {
     export function onCommand(
         handler: () => void
     ) {
-        commandsHandler = handler
+        state.commandsHandler = handler
     }
 
     /**
@@ -191,7 +215,7 @@ namespace myController {
     //% weight=91
     //% group="Commands"
     export function commandName() {
-        return latestCommandName
+        return state.receivedCommandName
     }
 
     /**
@@ -202,7 +226,7 @@ namespace myController {
     //% weight=90
     //% group="Commands"
     export function commandValue() {
-        return latestCommandValue
+        return state.receivedCommandValue
     }
 
     /**
@@ -216,7 +240,7 @@ namespace myController {
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
         let code = keyCode.toLowerCase();
-        return keyState ? pressedKeys[code] : (latestCommandName == '!' + code)
+        return keyState ? state.pressedKeys[code] : (state.receivedCommandName == '!' + code)
     }
 
     const KeyCodeLabel: { [n: number]: string } = {
@@ -233,7 +257,7 @@ namespace myController {
      * @param keyCode the button to get the code for
      */
     //% blockId=myController_key_code_value
-    //% block="code of %KeyCode button"
+    //% block="%KeyCode"
     //% weight=87
     //% group="Buttons"
     export function getKeyCodeValue(keyCode: KeyCode) {
@@ -248,7 +272,7 @@ namespace myController {
     //% weight=86
     //% group="Buttons"
     export function areAllKeysReleased() {
-        return latestCommandName == 'none'
+        return state.receivedCommandName == 'none'
     }
 
     /**
@@ -261,13 +285,13 @@ namespace myController {
     //% group="Buttons"
     export function buttonToggled(
     ) {
-        if (!buttonStates[latestCommandName]) {
-            buttonStates[latestCommandName] = 1;
+        if (!state.buttonStates[state.receivedCommandName]) {
+            state.buttonStates[state.receivedCommandName] = 1;
         } else {
-            buttonStates[latestCommandName] = 0;
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        return buttonStates[latestCommandName] == 1;
+        return state.buttonStates[state.receivedCommandName] == 1;
     }
 
     /**
@@ -283,17 +307,17 @@ namespace myController {
     export function buttonToggleCount(
         toggleMaxCount: number = 1,
     ) {
-        if (buttonStates[latestCommandName] == undefined) {
-            buttonStates[latestCommandName] = 0;
+        if (state.buttonStates[state.receivedCommandName] == undefined) {
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        if (buttonStates[latestCommandName] < toggleMaxCount) {
-            buttonStates[latestCommandName] += 1;
+        if (state.buttonStates[state.receivedCommandName] < toggleMaxCount) {
+            state.buttonStates[state.receivedCommandName] += 1;
         } else {
-            buttonStates[latestCommandName] = 0;
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        return buttonStates[latestCommandName];
+        return state.buttonStates[state.receivedCommandName];
     }
 
     /**
@@ -305,7 +329,7 @@ namespace myController {
     //% weight=79
     //% group="Inputs"
     export function isSlider(inputSide: InputSide) {
-        return latestCommandName == (inputSide == 1 ? 'sr' : 'sl')
+        return state.receivedCommandName == (inputSide == 1 ? 'sr' : 'sl')
     }
 
     /**
@@ -318,7 +342,7 @@ namespace myController {
     //% weight=69
     //% group="Inputs"
     export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
-        return latestCommandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
+        return state.receivedCommandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
     }
 
     /**
@@ -336,7 +360,7 @@ namespace myController {
             3: 'oz',
             4: 'oc',
         }
-        return latestCommandName == modes[inputOrientation]
+        return state.receivedCommandName == modes[inputOrientation]
     }
 
 
@@ -354,8 +378,8 @@ namespace myController {
         requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
-        setup = () => {
-            if (latestCommandName == "-v") {
+        state.setupHandler = () => {
+            if (state.receivedCommandName == "-v") {
                 if (requireConfirmation) {
                     sendData('vc;hasSettings;1;')
                 } else {
@@ -363,13 +387,13 @@ namespace myController {
                     handler()
                     sendData('vc;loader;0;')
                 }
-            } else if (latestCommandName == "getSettings") {
+            } else if (state.receivedCommandName == "getSettings") {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
-            } else if (latestCommandName == "usbOn") {
-                serialConnected = true;
-                pressedKeys = {};
+            } else if (state.receivedCommandName == "usbOn") {
+                state.receivedSerial = true;
+                state.pressedKeys = {};
             }
         };
     }
@@ -405,11 +429,11 @@ namespace myController {
     //% data.defl=''
     //% group="Setup"
     export function sendData(data: string) {
-        if (btConnected) {
+        if (state.receivedBLE) {
             bluetooth.uartWriteLine(data)
         }
 
-        if (serialConnected) {
+        if (state.receivedSerial) {
             serial.writeLine(data)
         }
     }
