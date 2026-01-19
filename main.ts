@@ -235,7 +235,7 @@ namespace myController {
      * @param keyState the state to check for (pressed or released)
      */
     //% blockId=myController_is_key
-    //% block="button %keyCode %KeyState"
+    //% block="button %keyCode %keyState"
     //% weight=89
     //% group="Buttons"
     export function isKey(keyCode: string, keyState: KeyState) {
