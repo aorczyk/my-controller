@@ -464,5 +464,4 @@ namespace myController {
     ) {
         sendData(['vc;b', code, visibility, color, label,].join(';'));
     }
-
 }
