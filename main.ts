@@ -115,24 +115,23 @@ namespace myController {
     let state : State = undefined;
 
     function initialize() {
-        if (state != undefined) {
-            return
+        if (state == undefined) {
+            state = new State();
+
+            // Main loop to process incoming commands one by one.
+            basic.forever(function () {
+                let keys = state ? Object.keys(state.receivedCommands) : []
+
+                if (keys.length) {
+                    state.receivedCommandName = keys[0]
+                    state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
+                    delete state.receivedCommands[state.receivedCommandName];
+
+                    state.setupHandler()
+                    state.commandsHandler()
+                }
+            })
         }
-
-        state = new State();
-
-        // Main loop to process incoming commands one by one.
-        basic.forever(function () {
-            if (Object.keys(state.receivedCommands).length) {
-                state.receivedCommandName = Object.keys(state.receivedCommands)[0]
-                state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
-                delete state.receivedCommands[state.receivedCommandName];
-
-                state.setupHandler()
-                state.commandsHandler()
-            }
-        })
-
     }
 
     function onDataReceived(command: string) {
@@ -204,6 +203,8 @@ namespace myController {
     export function onCommand(
         handler: () => void
     ) {
+        initialize()
+
         state.commandsHandler = handler
     }
 
@@ -260,7 +261,7 @@ namespace myController {
     //% block="%KeyCode"
     //% weight=87
     //% group="Buttons"
-    export function getKeyCodeValue(keyCode: KeyCode) {
+    export function keyCodeValue(keyCode: KeyCode) {
         return KeyCodeLabel[keyCode] || ""
     }
 
@@ -378,6 +379,8 @@ namespace myController {
         requireConfirmation: SetupConfirmation,
         handler: () => void,
     ) {
+        initialize()
+
         state.setupHandler = () => {
             if (state.receivedCommandName == "-v") {
                 if (requireConfirmation) {
@@ -429,6 +432,8 @@ namespace myController {
     //% data.defl=''
     //% group="Setup"
     export function sendData(data: string) {
+        initialize()
+
         if (state.receivedBLE) {
             bluetooth.uartWriteLine(data)
         }

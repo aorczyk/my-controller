@@ -101,7 +101,7 @@ myController.onCommand(function () {
 
 Returns `true` when all buttons have been released.
 
-#### `getKeyCodeValue(keyCode)`
+#### `keyCodeValue(keyCode)`
 
 Returns the string code for special keys.
 
@@ -261,25 +261,25 @@ myController.onCommand(function () {
     if (myController.isSlider(myController.InputSide.Left) || myController.isJoystick(myController.InputSide.Right, myController.JoystickDirection.Y) || myController.isOrientation(myController.InputOrientation.Y)) {
         ledY = myController.commandValue() + 2
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Released) || myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Released)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Released) || myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Released)) {
         ledY = 2
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Released) || myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Released)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Released) || myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Released)) {
         ledX = 2
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Pressed)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Pressed)) {
         ledY = 0
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Pressed)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Pressed)) {
         ledY = 4
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed)) {
         ledX = 4
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
         ledX = 0
     }
-    if (myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed) && myController.isKey(myController.getKeyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
+    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed) && myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
         ledX = 2
     }
     if (myController.isKey("1", myController.KeyState.Pressed)) {
