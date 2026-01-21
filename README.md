@@ -62,7 +62,7 @@ myController.useSerial()
 
 #### `onCommandReceived(handler)`
 
-Runs the code inside when any command is received from the controller. Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
+Runs the code when any command is received from the controller. Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
 
 **Parameters:**
 - `handler` (function) - Code to run when a command is received
@@ -136,7 +136,7 @@ myController.onCommandReceived(function () {
 
 #### `nextButtonToggle(maxCount)`
 
-Returns the current toggle count (0 to maxCount). Each press increments the counter until it reaches the maximum, then resets to 0.
+Returns the current toggle count (1 to maxCount). Each press increments the counter until it reaches the maximum, then resets to 0.
 
 **Parameters:**
 - `maxCount` (number) - Maximum count before reset (default: 1)
