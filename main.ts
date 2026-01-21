@@ -15,7 +15,7 @@
 
 //% color=#485fc7 icon="\uf11b" block="My Controller"
 namespace myController {
-    export const enum KeyCode {
+    export const enum ButtonName {
         //% block="arrow up"
         ArrowUp = 1,
         //% block="arrow down"
@@ -30,7 +30,7 @@ namespace myController {
         Space = 6,
     }
 
-    export const enum InputSide {
+    export const enum ControllerSide {
         //% block="right"
         Right = 1,
         //% block="left"
@@ -44,7 +44,7 @@ namespace myController {
         Y = 2,
     }
 
-    export const enum InputOrientation {
+    export const enum OrientationAxis {
         //% block="x"
         X = 1,
         //% block="y"
@@ -55,14 +55,14 @@ namespace myController {
         Compass = 4,
     }
 
-    export const enum KeyState {
+    export const enum ButtonState {
         //% block="pressed"
         Pressed = 1,
         //% block="released"
         Released = 0,
     }
 
-    export const enum KeyColor {
+    export const enum ButtonColor {
         //% block="black"
         Black = 0,
         //% block="green"
@@ -75,14 +75,14 @@ namespace myController {
         Red = 4,
     }
 
-    export const enum KeyVisibility {
+    export const enum ButtonVisibility {
         //% block="visible"
         Visible = 1,
         //% block="hidden"
         Hidden = 0,
     }
 
-    export const enum SetupConfirmation {
+    export const enum ConfirmationMode {
         //% block="require confirmation"
         Require = 1,
         //% block="no confirmation"
@@ -152,7 +152,8 @@ namespace myController {
     // Blocks
 
     /**
-     * Initializes Bluetooth communication with the controller app.
+     * Initializes Bluetooth communication (BLE) with the controller app.
+     * Must be called before receiving commands from the controller.
      */
     //% blockId=myController_use_bluetooth
     //% block="use Bluetooth"
@@ -173,7 +174,7 @@ namespace myController {
     }
 
     /**
-     * Initializes WebUSB communication with the controller app.
+     * Initializes Serial (WebUSB) communication with the controller app.
      */
     //% blockId=myController_use_serial
     //% block="use Serial"
@@ -193,18 +194,16 @@ namespace myController {
 
     /**
      * Runs the code inside when any command is received from the controller.
-     * Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
+     * Use this block to handle all incoming commands including key presses,
+     * slider changes, joystick movements, and orientation updates.
      * @param handler code to run when a command is received
      */
     //% blockId="myController_on_command"
     //% block="on command received"
     //% weight=92
     //% group="Commands"
-    export function onCommand(
-        handler: () => void
-    ) {
+    export function onCommandReceived(handler: () => void) {
         initialize()
-
         state.commandsHandler = handler
     }
 
@@ -215,7 +214,7 @@ namespace myController {
     //% block="command name"
     //% weight=91
     //% group="Commands"
-    export function commandName() {
+    export function commandName(): string {
         return state.receivedCommandName
     }
 
@@ -226,66 +225,65 @@ namespace myController {
     //% block="command value"
     //% weight=90
     //% group="Commands"
-    export function commandValue() {
+    export function commandValue(): number {
         return state.receivedCommandValue
     }
 
     /**
      * Returns true if the specified button is in the chosen state.
-     * @param keyCode the button to check
-     * @param keyState the state to check for (pressed or released)
+     * @param buttonCode the button to check
+     * @param buttonState the state to check for (pressed or released)
      */
-    //% blockId=myController_is_key
-    //% block="button %keyCode %keyState"
+    //% blockId=myController_is_button
+    //% block="is button %buttonCode %buttonState"
     //% weight=89
     //% group="Buttons"
-    export function isKey(keyCode: string, keyState: KeyState) {
-        let code = keyCode.toLowerCase();
-        return keyState ? state.pressedKeys[code] : (state.receivedCommandName == '!' + code)
-    }
-
-    const KeyCodeLabel: { [n: number]: string } = {
-        [KeyCode.ArrowUp]: "up",
-        [KeyCode.ArrowDown]: "down",
-        [KeyCode.ArrowRight]: "right",
-        [KeyCode.ArrowLeft]: "left",
-        [KeyCode.Enter]: "enter",
-        [KeyCode.Space]: "space",
+    export function isButton(buttonCode: string, buttonState: ButtonState) {
+        let code = buttonCode.toLowerCase();
+        return buttonState ? state.pressedKeys[code] : (state.receivedCommandName == '!' + code)
     }
 
     /**
      * Returns the string code for the specified button.
-     * @param keyCode the button to get the code for
+     * @param buttonCode the button to get the code for
      */
-    //% blockId=myController_key_code_value
-    //% block="%KeyCode"
+    //% blockId=myController_button_code
+    //% block="code of %ButtonName"
     //% weight=87
     //% group="Buttons"
-    export function keyCodeValue(keyCode: KeyCode) {
-        return KeyCodeLabel[keyCode] || ""
+    export function buttonCode(buttonCode: ButtonName) {
+        const nameToCode: { [n: number]: string } = {
+            [ButtonName.ArrowUp]: "up",
+            [ButtonName.ArrowDown]: "down",
+            [ButtonName.ArrowRight]: "right",
+            [ButtonName.ArrowLeft]: "left",
+            [ButtonName.Enter]: "enter",
+            [ButtonName.Space]: "space",
+        }
+
+        return nameToCode[buttonCode] || ""
     }
 
     /**
-     * Returns true if all keys have been released.
+     * Returns true if all buttons have been released.
      */
-    //% blockId=myController_are_all_keys_released
+    //% blockId=myController_all_buttons_released
     //% block="all buttons released"
     //% weight=86
     //% group="Buttons"
-    export function areAllKeysReleased() {
+    export function allButtonsReleased() {
         return state.receivedCommandName == 'none'
     }
 
     /**
-     * Returns true if the button toggles on, false if it toggles off.
+     * Toggles the button state. Returns true if the button is now on, false if off.
      * Each function call switches the button state.
      */
-    //% blockId="myController_button_toggled"
-    //% block="button toggled"
+    //% blockId="myController_toggle_button"
+    //% block="toggle button"
     //% weight=85
     //% group="Buttons"
-    export function buttonToggled(
-    ) {
+    export function toggleButton(): boolean {
         if (!state.buttonStates[state.receivedCommandName]) {
             state.buttonStates[state.receivedCommandName] = 1;
         } else {
@@ -296,18 +294,16 @@ namespace myController {
     }
 
     /**
-     * Returns the current toggle count for the button (1 to max count).
-     * Each function call increments the counter until it reaches the maximum, then resets to 0.
+     * Increments the button toggle counter and returns the current value (1 to max).
+     * When the counter reaches the maximum, it resets to 0.
      * @param toggleMaxCount the maximum toggle count (default is 1)
      */
-    //% blockId="myController_button_toggle_count"
-    //% block="button toggle count %toggleMaxCount"
+    //% blockId="myController_next_button_toggle"
+    //% block="button toggle count (max %toggleMaxCount)"
     //% toggleMaxCount.defl=1
     //% weight=84
     //% group="Buttons"
-    export function buttonToggleCount(
-        toggleMaxCount: number = 1,
-    ) {
+    export function nextButtonToggle(toggleMaxCount: number = 1): number {
         if (state.buttonStates[state.receivedCommandName] == undefined) {
             state.buttonStates[state.receivedCommandName] = 0;
         }
@@ -322,68 +318,72 @@ namespace myController {
     }
 
     /**
-     * Returns true if the specified slider value has changed.
-     * @param inputSide the slider side to check
+     * Returns true if the specified slider value was received from the app.
+     * @param controllerSide the slider side to check
      */
     //% blockId=myController_is_slider
-    //% block="%InputSide slider changed"
+    //% block="%ControllerSide slider"
     //% weight=79
     //% group="Inputs"
-    export function isSlider(inputSide: InputSide) {
-        return state.receivedCommandName == (inputSide == 1 ? 'sr' : 'sl')
+    export function isSlider(controllerSide: ControllerSide): boolean {
+        return state.receivedCommandName == (controllerSide == 1 ? 'sr' : 'sl')
     }
 
     /**
-     * Returns true if the specified joystick axis value has changed.
-     * @param inputSide the joystick side to check
-     * @param inputDirection the joystick axis to check
+     * Returns true if the specified joystick axis value was received from the app.
+     * @param controllerSide the joystick side to check
+     * @param direction the joystick axis to check
      */
     //% blockId=myController_is_joystick
-    //% block="%InputSide joystick %JoystickDirection changed"
+    //% block="%ControllerSide joystick %JoystickDirection"
     //% weight=69
     //% group="Inputs"
-    export function isJoystick(inputSide: InputSide, inputDirection: JoystickDirection) {
-        return state.receivedCommandName == (inputSide == 1 ? 'jr' : 'jl') + (inputDirection == 1 ? 'x' : 'y')
+    export function isJoystick(
+        controllerSide: ControllerSide,
+        direction: JoystickDirection
+    ): boolean {
+        return state.receivedCommandName == (controllerSide == 1 ? 'jr' : 'jl') + (direction == 1 ? 'x' : 'y')
     }
 
     /**
-     * Returns true if the specified orientation axis value has changed.
-     * @param inputOrient the orientation axis to check
+     * Returns true if the specified orientation axis value was received from the app.
+     * @param axis the orientation axis to check
      */
     //% blockId=myController_is_orientation
-    //% block="orientation %InputOrientation changed"
+    //% block="orientation %OrientationAxis"
     //% weight=67
     //% group="Inputs"
-    export function isOrientation(inputOrientation: InputOrientation) {
+    export function isOrientation(axis: OrientationAxis): boolean {
         let modes = {
             1: 'ox',
             2: 'oy',
             3: 'oz',
             4: 'oc',
         }
-        return state.receivedCommandName == modes[inputOrientation]
+        return state.receivedCommandName == modes[axis]
     }
 
 
     /**
-     * Runs the code inside when the controller connects and sends the setup signal. When option require confirmation is selected, the controller app will wait for confirmation before applying settings.
-     * @param requireConfirmation whether to require user confirmation in the app before applying settings
+     * Runs the code when the controller connects and sends the setup signal.
+     * If requireConfirmation is selected, the controller app will wait for confirmation before applying settings.
+     * @param confirmationMode whether user confirmation is required in the app before applying settings
      * @param handler code to run during setup
      */
-    //% blockId="myController_setup"
-    //% block="setup %SetupConfirmation"
+    //% blockId="myController_on_setup"
+    //% block="on setup %ConfirmationMode"
     //% weight=51
-    //% requireConfirmation.defl=SetupConfirmation.Require
+    //% confirmationMode.defl=ConfirmationMode.Require
     //% group="Setup"
     export function onSetup(
-        requireConfirmation: SetupConfirmation,
-        handler: () => void,
+        confirmationMode: ConfirmationMode,
+        handler: () => void
     ) {
         initialize()
 
         state.setupHandler = () => {
             if (state.receivedCommandName == "-v") {
-                if (requireConfirmation) {
+                if (confirmationMode) {
                     sendData('vc;hasSettings;1;')
                 } else {
                     sendData('vc;loader;1;')
@@ -407,13 +407,13 @@ namespace myController {
      * the exported settings code from the controller settings page.
      * @param data commands exported from the controller settings page, each command on a new line
      */
-    //% blockId="myController_import_settings"
-    //% block="import settings %data"
+    //% blockId="myController_apply_settings"
+    //% block="apply settings %data"
     //% inlineInputMode=inline
     //% weight=50
     //% data.defl=''
     //% group="Setup"
-    export function importSettings(data: string) {
+    export function applySettings(data: string) {
         let commands = data.split('; ');
         for (let i = 0; i < commands.length; i++) {
             sendData(commands[i]);
@@ -451,20 +451,20 @@ namespace myController {
      * @param color the button color
      * @param label optional text or number to display on the button
      */
-    //% blockId="myController_set_button_color"
-    //% block="set button $code|$visibility|$color || label $label"
+    //% blockId="myController_set_button"
+    //% block="set button %code to %visibility %color || label %label"
     //% inlineInputMode=inline
     //% weight=48
     //% expandableArgumentMode="toggle"
     //% code.defl=''
-    //% visibility.defl=KeyVisibility.Visible
-    //% color.defl=KeyColor.Black
+    //% visibility.defl=ButtonVisibility.Visible
+    //% color.defl=ButtonColor.Black
     //% label.defl=''
     //% group="Setup"
     export function setButton(
         code: string,
-        visibility: KeyVisibility,
-        color?: KeyColor,
+        visibility: ButtonVisibility,
+        color?: ButtonColor,
         label?: string | number
     ) {
         sendData(['vc;b', code, visibility, color, label,].join(';'));

@@ -60,7 +60,7 @@ myController.useSerial()
 
 ### Commands handling
 
-#### `onCommand(handler)`
+#### `onCommandReceived(handler)`
 
 Runs the code inside when any command is received from the controller. Use this block to handle all incoming commands including key presses, slider changes, joystick movements, and orientation updates.
 
@@ -77,64 +77,64 @@ Returns the value of the most recently received command (for analog inputs).
 
 ### Button Input
 
-#### `isKey(keyCode, keyState)`
+#### `isButton(buttonCode, buttonState)`
 
 Returns `true` if the specified button is in the chosen state.
 
 **Parameters:**
-- `keyCode` (string) - Button code to check
-- `keyState` (KeyState) - `Pressed` or `Released`
+- `buttonCode` (string) - Button code to check
+- `buttonState` (ButtonState) - `Pressed` or `Released`
 
 **Example:**
 ```typescript
-myController.onCommand(function () {
-    if (myController.isKey("1", KeyState.Pressed)) {
+myController.onCommandReceived(function () {
+    if (myController.isButton("1", ButtonState.Pressed)) {
         led.plot(2, 2)
     }
-    if (myController.isKey("1", KeyState.Released)) {
+    if (myController.isButton("1", ButtonState.Released)) {
         led.unplot(2, 2)
     }
 })
 ```
 
-#### `areAllKeysReleased()`
+#### `areAllButtonsReleased()`
 
 Returns `true` when all buttons have been released.
 
-#### `keyCodeValue(keyCode)`
+#### `buttonCode(buttonName)`
 
 Returns the string code for special keys.
 
 **Special Keys:**
-- `KeyCode.ArrowUp` → "up"
-- `KeyCode.ArrowDown` → "down"
-- `KeyCode.ArrowRight` → "right"
-- `KeyCode.ArrowLeft` → "left"
-- `KeyCode.Enter` → "enter"
-- `KeyCode.Space` → "space"
+- `ButtonName.ArrowUp` → "up"
+- `ButtonName.ArrowDown` → "down"
+- `ButtonName.ArrowRight` → "right"
+- `ButtonName.ArrowLeft` → "left"
+- `ButtonName.Enter` → "enter"
+- `ButtonName.Space` → "space"
 
 ### Utility Functions
 
-#### `buttonToggled()`
+#### `toggleButton()`
 
 Returns `true` if the button toggles on, `false` if it toggles off. Maintains individual toggle state for each button.
 
 **Example:**
 ```typescript
-myController.onCommand(function () {
-    if (myController.isKey("1", KeyState.Pressed)) {
-        if (myController.buttonToggled()) {
-            myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, '<i class="fa-solid fa-check"></i>')
+myController.onCommandReceived(function () {
+    if (myController.isButton("1", ButtonState.Pressed)) {
+        if (myController.toggleButton()) {
+            myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, '<i class="fa-solid fa-check"></i>')
             basic.showIcon(IconNames.Yes)
         } else {
-            myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, '<i class="fa-solid fa-xmark"></i>')
+            myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Red, '<i class="fa-solid fa-xmark"></i>')
             basic.showIcon(IconNames.No)
         }
     }
 })
 ```
 
-#### `buttonToggleCount(maxCount)`
+#### `nextButtonToggle(maxCount)`
 
 Returns the current toggle count (0 to maxCount). Each press increments the counter until it reaches the maximum, then resets to 0.
 
@@ -143,10 +143,10 @@ Returns the current toggle count (0 to maxCount). Each press increments the coun
 
 **Example:**
 ```typescript
-myController.onCommand(function () {
-    if (myController.isKey("1", KeyState.Pressed)) {
-        state = myController.buttonToggleCount(3)
-        myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, state)
+myController.onCommandReceived(function () {
+    if (myController.isButton("1", ButtonState.Pressed)) {
+        state = myController.nextButtonToggle(3)
+        myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, state)
         basic.showString("" + (state))
     }
 })
@@ -156,33 +156,33 @@ state = 0
 
 ### Analog Inputs
 
-#### `isSlider(inputSide)`
+#### `isSlider(controllerSide)`
 
 Returns `true` if the specified slider value has changed.
 
 **Parameters:**
-- `inputSide` (InputSide) - `Right` or `Left`
+- `controllerSide` (ControllerSide) - `Right` or `Left`
 
 **Example - control brightness of the micro:bit LED display:**
 ```typescript
-myController.onCommand(function () {
-    if (myController.isSlider(InputSide.Right)) {
+myController.onCommandReceived(function () {
+    if (myController.isSlider(ControllerSide.Right)) {
         led.setBrightness(myController.commandValue())
     }
 })
 myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.importSettings("vc;init; vc;show;sr; vc;sr;0;0;255;1;0;0;1;100;")
+    myController.applySettings("vc;init; vc;show;sr; vc;sr;0;0;255;1;0;0;1;100;")
 })
 basic.showIcon(IconNames.Heart)
 led.setBrightness(100)
 ```
 
-#### `isJoystick(inputSide, direction)`
+#### `isJoystick(controllerSide, direction)`
 
 Returns `true` if the specified joystick axis has changed.
 
 **Parameters:**
-- `inputSide` (InputSide) - `Right` or `Left`
+- `controllerSide` (ControllerSide) - `Right` or `Left`
 - `direction` (JoystickDirection) - `x` or `y`
 
 #### `isOrientation(axis)`
@@ -190,27 +190,27 @@ Returns `true` if the specified joystick axis has changed.
 Returns `true` if the specified orientation axis has changed.
 
 **Parameters:**
-- `axis` (InputOrientation) - `x`, `y`, `z`, or `compass`
+- `axis` (OrientationAxis) - `x`, `y`, `z`, or `compass`
 
 ### Setup & Configuration
 
-#### `onSetup(requireConfirmation, handler)`
+#### `onSetup(confirmationMode, handler)`
 
 Configures the controller interface when the app connects.
 
 **Parameters:**
-- `requireConfirmation` (SetupConfirmation) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
-- `handler` (function) - Code to run during setup, typically containing `importSettings` call or `setButton` configurations.
+- `confirmationMode` (ConfirmationMode) - `Require` or `NoRequire`. When set to `Require`, the app displays a confirmation dialog before applying settings.
+- `handler` (function) - Code to run during setup, typically containing `applySettings` call or `setButton` configurations.
 
 **Example:**
 ```typescript
-myController.onSetup(SetupConfirmation.Require, function () {
-    myController.setButton("1", KeyVisibility.Visible, KeyColor.Green, "A")
-    myController.setButton("2", KeyVisibility.Visible, KeyColor.Red, "B")
+myController.onSetup(ConfirmationMode.Require, function () {
+    myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, "A")
+    myController.setButton("2", ButtonVisibility.Visible, ButtonColor.Red, "B")
 })
 ```
 
-#### `importSettings(settingsString)`
+#### `applySettings(settingsString)`
 
 Imports controller configuration from a settings string exported from the app.
 
@@ -220,7 +220,7 @@ Imports controller configuration from a settings string exported from the app.
 **Example:**
 ```typescript
 myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.importSettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
+    myController.applySettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
 })
 ```
 
@@ -230,8 +230,8 @@ Configures a button's appearance in the controller app.
 
 **Parameters:**
 - `code` (string) - Button code (e.g., "1", "2", "up", "down")
-- `visibility` (KeyVisibility) - `Visible` or `Hidden`
-- `color` (KeyColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
+- `visibility` (ButtonVisibility) - `Visible` or `Hidden`
+- `color` (ButtonColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
 - `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa-solid fa-heart'></i>`)
 
 #### `sendData(data)`
@@ -243,8 +243,8 @@ Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this
 
 **Example:**
 ```typescript
-myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.setButton("1", KeyVisibility.Visible, KeyColor.Red, "<i class='fa fa-heart'></i>")
+myController.onSetup(ConfirmationMode.NoRequire, function () {
+    myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Red, "<i class='fa fa-heart'></i>")
 })
 ```
 
@@ -253,59 +253,59 @@ myController.onSetup(SetupConfirmation.NoRequire, function () {
 ### Controlling a dot on a micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
 
 ```typescript
-myController.onCommand(function () {
+myController.onCommandReceived(function () {
     led.unplot(ledX, ledY)
-    if (myController.isSlider(myController.InputSide.Right) || myController.isJoystick(myController.InputSide.Right, myController.JoystickDirection.X) || myController.isOrientation(myController.InputOrientation.X)) {
+    if (myController.isSlider(myController.ControllerSide.Right) || myController.isJoystick(myController.ControllerSide.Right, myController.JoystickDirection.X) || myController.isOrientation(myController.OrientationAxis.X)) {
         ledX = myController.commandValue() + 2
     }
-    if (myController.isSlider(myController.InputSide.Left) || myController.isJoystick(myController.InputSide.Right, myController.JoystickDirection.Y) || myController.isOrientation(myController.InputOrientation.Y)) {
+    if (myController.isSlider(myController.ControllerSide.Left) || myController.isJoystick(myController.ControllerSide.Right, myController.JoystickDirection.Y) || myController.isOrientation(myController.OrientationAxis.Y)) {
         ledY = myController.commandValue() + 2
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Released) || myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Released)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowDown), myController.ButtonState.Released) || myController.isButton(myController.buttonCode(myController.ButtonName.ArrowUp), myController.ButtonState.Released)) {
         ledY = 2
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Released) || myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Released)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Released) || myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Released)) {
         ledX = 2
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowUp), myController.KeyState.Pressed)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowUp), myController.ButtonState.Pressed)) {
         ledY = 0
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowDown), myController.KeyState.Pressed)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowDown), myController.ButtonState.Pressed)) {
         ledY = 4
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Pressed)) {
         ledX = 4
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Pressed)) {
         ledX = 0
     }
-    if (myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowRight), myController.KeyState.Pressed) && myController.isKey(myController.keyCodeValue(myController.KeyCode.ArrowLeft), myController.KeyState.Pressed)) {
+    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Pressed) && myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Pressed)) {
         ledX = 2
     }
-    if (myController.isKey("1", myController.KeyState.Pressed)) {
-        if (myController.buttonToggled()) {
-            myController.setButton("1", myController.KeyVisibility.Visible, myController.KeyColor.Green, "")
+    if (myController.isButton("1", myController.ButtonState.Pressed)) {
+        if (myController.toggleButton()) {
+            myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, "")
         } else {
-            myController.setButton("1", myController.KeyVisibility.Visible, myController.KeyColor.Black, "")
+            myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, "")
         }
     }
-    if (myController.isKey("2", myController.KeyState.Pressed)) {
-        myController.setButton("2", myController.KeyVisibility.Visible, myController.KeyColor.Black, myController.buttonToggleCount(3))
+    if (myController.isButton("2", myController.ButtonState.Pressed)) {
+        myController.setButton("2", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, myController.nextButtonToggle(3))
     }
-    if (myController.isKey("3", myController.KeyState.Pressed)) {
+    if (myController.isButton("3", myController.ButtonState.Pressed)) {
         basic.showIcon(IconNames.House)
     }
-    if (myController.isKey("4", myController.KeyState.Pressed)) {
+    if (myController.isButton("4", myController.ButtonState.Pressed)) {
         basic.showIcon(IconNames.Heart)
     }
-    if (myController.isKey("3", myController.KeyState.Released) || myController.isKey("4", myController.KeyState.Released)) {
+    if (myController.isButton("3", myController.ButtonState.Released) || myController.isButton("4", myController.ButtonState.Released)) {
         basic.clearScreen()
     }
     led.plot(ledX, ledY)
 })
-myController.onSetup(myController.SetupConfirmation.NoRequire, function () {
-    myController.importSettings("vc;init; vc;sl;1;-2;2;1;1;0;1;; vc;sr;1;-2;2;1;0;0;0;; vc;jrx;-2;2;1;0;0; vc;jry;-2;2;1;1;0; vc;b;2;1;0;0; vc;b;3;1;0;<i class=\"fa-solid fa-house\"></i>; vc;b;4;1;0;<i class=\"fa-solid fa-heart\"></i>; vc;ox;1;-45;45;-2;2;1;0;0; vc;oy;1;-45;45;-2;2;1;1;0; vc;il;1; vc;ir;2; vc;show;sl,sr,jr,ar,br,bl;")
-    myController.setButton("2", myController.KeyVisibility.Visible, myController.KeyColor.Black, "0")
+myController.onSetup(myController.ConfirmationMode.NoRequire, function () {
+    myController.applySettings("vc;init; vc;sl;1;-2;2;1;1;0;1;; vc;sr;1;-2;2;1;0;0;0;; vc;jrx;-2;2;1;0;0; vc;jry;-2;2;1;1;0; vc;b;2;1;0;0; vc;b;3;1;0;<i class=\"fa-solid fa-house\"></i>; vc;b;4;1;0;<i class=\"fa-solid fa-heart\"></i>; vc;ox;1;-45;45;-2;2;1;0;0; vc;oy;1;-45;45;-2;2;1;1;0; vc;il;1; vc;ir;2; vc;show;sl,sr,jr,ar,br,bl;")
+    myController.setButton("2", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, "0")
 })
 let ledY = 0
 let ledX = 0
