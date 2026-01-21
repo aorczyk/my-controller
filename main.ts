@@ -1,14 +1,7 @@
 /**
- * My Controller - virtual controller.
- * Controlling a micro:bit from the app My micro:bit.
- * 
- * This extension allows you to:
- * - Controlling a micro:bit via Bluetooth or WebUSB from the app My micro:bit Controller
- * - Receive button presses and releases
- * - Read slider values
- * - Get joystick positions
- * - Monitor device orientation
- * - Configure the controller layout.
+ * A MakeCode extension that enables control of your 
+ * BBC micro:bit through an app https://mymicrobit.medlight.pl/ 
+ * using Bluetooth or WebUSB - micro:bit (V2) only.
  * 
  * (c) 2025, Adam Orczyk
  */
@@ -193,7 +186,7 @@ namespace myController {
     }
 
     /**
-     * Runs the code inside when any command is received from the controller.
+     * Runs the code when any command is received from the controller.
      * Use this block to handle all incoming commands including key presses,
      * slider changes, joystick movements, and orientation updates.
      * @param handler code to run when a command is received
@@ -244,7 +237,7 @@ namespace myController {
     }
 
     /**
-     * Returns the string code for the specified button.
+     * Returns the code for the specified button name.
      * @param buttonCode the button to get the code for
      */
     //% blockId=myController_button_code
@@ -405,7 +398,7 @@ namespace myController {
      * Imports controller settings from the provided data string.
      * Use this block to quickly set up the controller interface by pasting
      * the exported settings code from the controller settings page.
-     * @param data commands exported from the controller settings page, each command on a new line
+     * @param data commands exported from the controller settings page
      */
     //% blockId="myController_apply_settings"
     //% block="apply settings %data"
