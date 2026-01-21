@@ -1,6 +1,6 @@
 # My Controller
 
-> Control your micro:bit wirelessly via Bluetooth or USB from an app [my micro:bit](https://mymicrobit.medlight.pl/)
+> Control your BBC micro:bit wirelessly via Bluetooth or USB from an app [my micro:bit](https://mymicrobit.medlight.pl/)
 
 > [!NOTE]
 > Works with micro:bit V2 only!
@@ -9,7 +9,7 @@
 [![micro:bit](https://img.shields.io/badge/micro%3Abit-v2-blue)](https://microbit.org/)
 [![MakeCode](https://img.shields.io/badge/MakeCode-Extension-orange)](https://makecode.microbit.org/)
 
-A powerful MakeCode extension that enables control of your micro:bit through an app [my micro:bit](https://mymicrobit.medlight.pl/) using Bluetooth or WebUSB. Create custom controller interfaces with buttons, sliders, joysticks, and orientation sensors.
+A powerful MakeCode extension that enables control of your BBC micro:bit through an app [my micro:bit](https://mymicrobit.medlight.pl/) using Bluetooth or WebUSB. Create custom controller interfaces with buttons, sliders, joysticks, and orientation sensors.
 
 ## ✨ Features
 
@@ -34,7 +34,7 @@ Add this extension to your MakeCode project:
 5. Click to import
 
 > [!NOTE]
-> This extension includes Bluetooth functionality, which will automatically remove other radio features from your project due to micro:bit Bluetooth limitations. The extension automatically manages the Bluetooth UART service for communication.
+> This extension includes Bluetooth functionality, which will automatically remove other radio features from your project due to BBC micro:bit Bluetooth limitations. The extension automatically manages the Bluetooth UART service for communication.
 
 ## 📚 API Reference
 
@@ -163,7 +163,7 @@ Returns `true` if the specified slider value has changed.
 **Parameters:**
 - `controllerSide` (ControllerSide) - `Right` or `Left`
 
-**Example - control brightness of the micro:bit LED display:**
+**Example - control brightness of the BBC micro:bit LED display:**
 ```typescript
 myController.onCommandReceived(function () {
     if (myController.isSlider(ControllerSide.Right)) {
@@ -250,7 +250,7 @@ myController.onSetup(ConfirmationMode.NoRequire, function () {
 
 ## 💡 Examples
 
-### Controlling a dot on a micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
+### Controlling a dot on a BBC micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
 
 ```typescript
 myController.onCommandReceived(function () {
@@ -318,7 +318,7 @@ myController.useBluetooth()
 ## 📋 Requirements
 
 - **micro:bit v2** (with Bluetooth support)
-- **Bluetooth enabled** on both micro:bit and mobile device
+- **Bluetooth enabled** on both BBC micro:bit and mobile device
 - **UART Bluetooth service** (automatically started by the extension)
 - **Compatible app** for controller interface ([my micro:bit](https://mymicrobit.medlight.pl/))
 
