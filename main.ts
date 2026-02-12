@@ -388,7 +388,9 @@ namespace myController {
     //% block="slider changed value"
     //% weight=77
     //% group="Sliders"
-    export const sliderChangedValue = commandValue;
+    export function sliderChangedValue(): number {
+        return commandValue();
+    }
 
     /**
          * Returns true if the left joystick axis value was updated.
@@ -417,13 +419,15 @@ namespace myController {
     }
 
     /**
-     * Returns the value of the joystick that triggered the last "joystick changed" event.
+     * Returns the value from the last "joystick changed" event.
      */
     //% blockId=myController_joystick_changed_value
     //% block="joystick changed value"
     //% weight=67
     //% group="Joysticks"
-    export const joystickChangedValue = commandValue;
+    export function joystickChangedValue(): number {
+        return commandValue();
+    }
 
 
     /**
@@ -455,7 +459,9 @@ namespace myController {
     //% block="orientation changed value"
     //% weight=66
     //% group="Orientation"
-    export const orientationChangedValue = commandValue;
+    export function orientationChangedValue(): number {
+        return commandValue();
+    }
 
 
     /**
