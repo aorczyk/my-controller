@@ -1,6 +1,5 @@
 /**
  * My Controller tests
- * Example code for controlling a dot on a micro:bit screen using arrow keys, sliders, joystick, and device orientation.
  */
 
 basic.clearScreen()
