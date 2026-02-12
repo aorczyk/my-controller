@@ -170,6 +170,17 @@ let state = 0
 state = 0
 ```
 
+#### `setButton(code, visibility, color, label)`
+
+Configures a button's appearance in the controller app.
+
+**Parameters:**
+- `code` (string) - Button code (e.g., "1", "2", "up", "down")
+- `visibility` (ButtonVisibility) - `Visible` or `Hidden`
+- `color` (ButtonColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
+- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa-solid fa-heart'></i>`)
+
+
 ### Analog Inputs
 
 #### Sliders
@@ -273,16 +284,6 @@ myController.onSetup(SetupConfirmation.NoRequire, function () {
     myController.applySettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
 })
 ```
-
-#### `setButton(code, visibility, color, label)`
-
-Configures a button's appearance in the controller app.
-
-**Parameters:**
-- `code` (string) - Button code (e.g., "1", "2", "up", "down")
-- `visibility` (ButtonVisibility) - `Visible` or `Hidden`
-- `color` (ButtonColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
-- `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa-solid fa-heart'></i>`)
 
 #### `sendData(data)`
 
