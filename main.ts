@@ -81,9 +81,6 @@ namespace myController {
         // Storing toggle states and counts for buttons.
         buttonStates: { [key: string]: number } = {};
 
-        // Input values
-        leftSliderValue: number;
-
         // Communication method flags.
         receivedBLE = false;
         receivedSerial = false;
@@ -370,19 +367,7 @@ namespace myController {
     //% group="Sliders"
     //% weight=79
     export function leftSliderChanged(): boolean {
-        state.leftSliderValue = state.receivedCommandValue
         return state.receivedCommandName == 'sl'
-    }
-
-    /**
-     * Returns the value of the slider that triggered the last "slider changed" event.
-     */
-    //% blockId=myController_left_slider_value
-    //% block="left slider value"
-    //% weight=78
-    //% group="Sliders"
-    export function leftSliderValue(): number {
-        return state.leftSliderValue
     }
 
     /**
@@ -391,12 +376,19 @@ namespace myController {
     //% blockId=myController_right_slider_changed
     //% block="right slider changed"
     //% group="Sliders"
-    //% weight=77
+    //% weight=78
     export function rightSliderChanged(): boolean {
-        state.leftSliderValue = state.receivedCommandValue
         return state.receivedCommandName == 'sr'
     }
 
+    /**
+     * Returns the value from the last "slider changed" event.
+     */
+    //% blockId=myController_slider_changed_value
+    //% block="slider changed value"
+    //% weight=77
+    //% group="Sliders"
+    export const sliderChangedValue = commandValue;
 
     /**
          * Returns true if the left joystick axis value was updated.

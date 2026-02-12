@@ -77,29 +77,45 @@ Returns the value of the most recently received command (for analog inputs).
 
 ### Button Input
 
-#### `isButton(buttonCode, buttonState)`
+#### `isButtonPressed(buttonCode)`
 
-Returns `true` if the specified button is in the chosen state.
+Returns `true` if a specific button is currently pressed.
 
 **Parameters:**
 - `buttonCode` (string) - Button code to check
-- `buttonState` (ButtonState) - `Pressed` or `Released`
 
 **Example:**
 ```typescript
 myController.onCommandReceived(function () {
-    if (myController.isButton("1", ButtonState.Pressed)) {
+    if (myController.isButtonPressed("1")) {
         led.plot(2, 2)
     }
-    if (myController.isButton("1", ButtonState.Released)) {
+})
+```
+
+#### `buttonWasReleased(buttonCode)`
+
+Returns `true` if a button was just released.
+
+**Parameters:**
+- `buttonCode` (string) - Button code to check
+
+**Example:**
+```typescript
+myController.onCommandReceived(function () {
+    if (myController.buttonWasReleased("1")) {
         led.unplot(2, 2)
     }
 })
 ```
 
-#### `areAllButtonsReleased()`
+#### `allButtonsReleased()`
 
 Returns `true` when all buttons have been released.
+
+#### `noButtonIsPressed()`
+
+Returns `true` if no button is currently being pressed.
 
 #### `buttonCode(buttonName)`
 
@@ -122,7 +138,7 @@ Returns `true` if the button toggles on, `false` if it toggles off. Maintains in
 **Example:**
 ```typescript
 myController.onCommandReceived(function () {
-    if (myController.isButton("1", ButtonState.Pressed)) {
+    if (myController.isButtonPressed("1")) {
         if (myController.toggleButton()) {
             myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, '<i class="fa-solid fa-check"></i>')
             basic.showIcon(IconNames.Yes)
@@ -144,7 +160,7 @@ Returns the current toggle count (1 to maxCount). Each press increments the coun
 **Example:**
 ```typescript
 myController.onCommandReceived(function () {
-    if (myController.isButton("1", ButtonState.Pressed)) {
+    if (myController.isButtonPressed("1")) {
         state = myController.nextButtonToggle(3)
         myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, state)
         basic.showString("" + (state))
@@ -156,41 +172,75 @@ state = 0
 
 ### Analog Inputs
 
-#### `isSlider(controllerSide)`
+#### Sliders
 
-Returns `true` if the specified slider value has changed.
+##### `leftSliderChanged()`
 
-**Parameters:**
-- `controllerSide` (ControllerSide) - `Right` or `Left`
+Returns `true` if a new value from the left slider has been received.
+
+**Example:**
+```typescript
+myController.onCommandReceived(function () {
+    if (myController.leftSliderChanged()) {
+        led.setBrightness(myController.sliderChangedValue())
+    }
+})
+```
+
+##### `rightSliderChanged()`
+
+Returns `true` if a new value from the right slider has been received.
+
+##### `sliderChangedValue()`
+
+Returns the value from the last "slider changed" event.
 
 **Example - control brightness of the BBC micro:bit LED display:**
 ```typescript
 myController.onCommandReceived(function () {
-    if (myController.isSlider(ControllerSide.Right)) {
-        led.setBrightness(myController.commandValue())
+    if (myController.leftSliderChanged()) {
+        led.setBrightness(myController.sliderChangedValue())
     }
 })
-myController.onSetup(SetupConfirmation.NoRequire, function () {
+myController.onSetup(ConfirmationMode.NoRequire, function () {
     myController.applySettings("vc;init; vc;show;sr; vc;sr;0;0;255;1;0;0;1;100;")
 })
 basic.showIcon(IconNames.Heart)
 led.setBrightness(100)
 ```
 
-#### `isJoystick(controllerSide, direction)`
+#### Joysticks
 
-Returns `true` if the specified joystick axis has changed.
+##### `leftJoystickChanged(direction)`
 
-**Parameters:**
-- `controllerSide` (ControllerSide) - `Right` or `Left`
-- `direction` (JoystickDirection) - `x` or `y`
-
-#### `isOrientation(axis)`
-
-Returns `true` if the specified orientation axis has changed.
+Returns `true` if the left joystick axis value was updated.
 
 **Parameters:**
-- `axis` (OrientationAxis) - `x`, `y`, `z`, or `compass`
+- `direction` (JoystickDirection) - `X` or `Y`
+
+##### `rightJoystickChanged(direction)`
+
+Returns `true` if the right joystick axis value was updated.
+
+**Parameters:**
+- `direction` (JoystickDirection) - `X` or `Y`
+
+##### `joystickChangedValue()`
+
+Returns the value from the last "joystick changed" event.
+
+#### Orientation
+
+##### `orientationChanged(axis)`
+
+Returns `true` if the specified orientation axis value was updated.
+
+**Parameters:**
+- `axis` (OrientationAxis) - `X`, `Y`, `Z`, or `Compass`
+
+##### `orientationChangedValue()`
+
+Returns the value from the last "orientation changed" event.
 
 ### Setup & Configuration
 
@@ -255,50 +305,50 @@ myController.onSetup(ConfirmationMode.NoRequire, function () {
 ```typescript
 myController.onCommandReceived(function () {
     led.unplot(ledX, ledY)
-    if (myController.isSlider(myController.ControllerSide.Right) || myController.isJoystick(myController.ControllerSide.Right, myController.JoystickDirection.X) || myController.isOrientation(myController.OrientationAxis.X)) {
+    if (myController.rightSliderChanged() || myController.rightJoystickChanged(myController.JoystickDirection.X) || myController.orientationChanged(myController.OrientationAxis.X)) {
         ledX = myController.commandValue() + 2
     }
-    if (myController.isSlider(myController.ControllerSide.Left) || myController.isJoystick(myController.ControllerSide.Right, myController.JoystickDirection.Y) || myController.isOrientation(myController.OrientationAxis.Y)) {
+    if (myController.leftSliderChanged() || myController.rightJoystickChanged(myController.JoystickDirection.Y) || myController.orientationChanged(myController.OrientationAxis.Y)) {
         ledY = myController.commandValue() + 2
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowDown), myController.ButtonState.Released) || myController.isButton(myController.buttonCode(myController.ButtonName.ArrowUp), myController.ButtonState.Released)) {
+    if (myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowDown)) || myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowUp))) {
         ledY = 2
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Released) || myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Released)) {
+    if (myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowRight)) || myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowLeft))) {
         ledX = 2
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowUp), myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowUp))) {
         ledY = 0
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowDown), myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowDown))) {
         ledY = 4
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowRight))) {
         ledX = 4
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowLeft))) {
         ledX = 0
     }
-    if (myController.isButton(myController.buttonCode(myController.ButtonName.ArrowRight), myController.ButtonState.Pressed) && myController.isButton(myController.buttonCode(myController.ButtonName.ArrowLeft), myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowRight)) && myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowLeft))) {
         ledX = 2
     }
-    if (myController.isButton("1", myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed("1")) {
         if (myController.toggleButton()) {
             myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, "")
         } else {
             myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, "")
         }
     }
-    if (myController.isButton("2", myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed("2")) {
         myController.setButton("2", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, myController.nextButtonToggle(3))
     }
-    if (myController.isButton("3", myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed("3")) {
         basic.showIcon(IconNames.House)
     }
-    if (myController.isButton("4", myController.ButtonState.Pressed)) {
+    if (myController.isButtonPressed("4")) {
         basic.showIcon(IconNames.Heart)
     }
-    if (myController.isButton("3", myController.ButtonState.Released) || myController.isButton("4", myController.ButtonState.Released)) {
+    if (myController.buttonWasReleased("3") || myController.buttonWasReleased("4")) {
         basic.clearScreen()
     }
     led.plot(ledX, ledY)
