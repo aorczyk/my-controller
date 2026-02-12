@@ -23,13 +23,6 @@ namespace myController {
         Space = 6,
     }
 
-    export const enum ControllerSide {
-        //% block="right"
-        Right = 1,
-        //% block="left"
-        Left = 2,
-    }
-
     export const enum JoystickDirection {
         //% block="x"
         X = 1,
@@ -46,13 +39,6 @@ namespace myController {
         Z = 3,
         //% block="compass"
         Compass = 4,
-    }
-
-    export const enum ButtonState {
-        //% block="pressed"
-        Pressed = 1,
-        //% block="released"
-        Released = 0,
     }
 
     export const enum ButtonColor {
@@ -90,17 +76,20 @@ namespace myController {
 
         // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
         pressedKeys: { [key: string]: boolean } = {};
+        lastButtonReleased = false;
+
+        // Storing toggle states and counts for buttons.
+        buttonStates: { [key: string]: number } = {};
+
+        // Input values
+        leftSliderValue: number;
 
         // Communication method flags.
         receivedBLE = false;
         receivedSerial = false;
 
-        // Storing toggle states and counts for buttons.
-        buttonStates: { [key: string]: number } = {};
-
-        // Handlers
-        commandsHandler: () => void = () => {};
-        setupHandler: () => void = () => {};
+        // Command handler registry.
+        handlerRegistry: (() => void)[] = [];
 
         constructor() {}
     }
@@ -113,32 +102,43 @@ namespace myController {
 
             // Main loop to process incoming commands one by one.
             basic.forever(function () {
-                let keys = state ? Object.keys(state.receivedCommands) : []
+                let commands = state ? Object.keys(state.receivedCommands) : []
 
-                if (keys.length) {
-                    state.receivedCommandName = keys[0]
+                if (commands.length) {
+                    state.receivedCommandName = commands[0]
                     state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
                     delete state.receivedCommands[state.receivedCommandName];
 
-                    state.setupHandler()
-                    state.commandsHandler()
+                    state.handlerRegistry.forEach(handler => {
+                        handler()
+                    })
                 }
             })
         }
     }
 
-    function onDataReceived(command: string) {
+    export function onDataReceived(command: string) {
         let [commandName, commandValue] = command.split("=")
 
         // Button press/release or some other non-numeric command (to be handled later).
         if (commandValue == undefined) {
+            commandValue = '0'
+
             if (commandName[0] == '!') {
-                delete state.pressedKeys[commandName.slice(1)]
+                commandName = commandName.slice(1)
+                delete state.pressedKeys[commandName]
+            } else if (commandName == 'none') {
+                state.pressedKeys = {}
             } else {
                 state.pressedKeys[commandName] = true
+                commandValue = '1'
             }
-        }
 
+            state.lastButtonReleased = Object.keys(state.pressedKeys).length == 0
+        } else {
+            state.lastButtonReleased = false
+        }
+        
         state.receivedCommands[commandName] = parseFloat(commandValue)
     }
 
@@ -197,7 +197,7 @@ namespace myController {
     //% group="Commands"
     export function onCommandReceived(handler: () => void) {
         initialize()
-        state.commandsHandler = handler
+        state.handlerRegistry.push(handler)
     }
 
     /**
@@ -223,17 +223,52 @@ namespace myController {
     }
 
     /**
-     * Returns true if the specified button is in the chosen state.
+     * Returns true if a specific button is currently pressed.
      * @param buttonCode the button to check
-     * @param buttonState the state to check for (pressed or released)
      */
-    //% blockId=myController_is_button
-    //% block="is button %buttonCode %buttonState"
-    //% weight=89
+    //% blockId=myController_is_button_pressed
+    //% block="is button %button pressed"
     //% group="Buttons"
-    export function isButton(buttonCode: string, buttonState: ButtonState) {
-        let code = buttonCode.toLowerCase();
-        return buttonState ? state.pressedKeys[code] : (state.receivedCommandName == '!' + code)
+    //% weight=89
+    export function isButtonPressed(buttonCode: string): boolean {
+        return state.pressedKeys[buttonCode];
+    }
+
+    /**
+     * Returns true if a button was just released.
+     * @param buttonCode the button to check
+     */
+    //% blockId=myController_button_was_released
+    //% block="button %button was released"
+    //% group="Buttons"
+    //% weight=88
+    export function buttonWasReleased(buttonCode: string): boolean {
+        return state.receivedCommandName == buttonCode && !state.pressedKeys[buttonCode];
+    }
+
+    /**
+     * Returns true if all buttons have been released.
+     */
+    //% blockId=myController_all_buttons_released
+    //% block="all buttons released"
+    //% weight=87
+    //% group="Buttons"
+    export function allButtonsReleased() {
+        // return state.receivedCommandName == 'none'
+        return state.lastButtonReleased
+    }
+
+    /**
+     * Returns true if no button is currently being pressed.
+     */
+    //% blockId=myController_no_button_is_pressed
+    //% block="no button is pressed"
+    //% weight=86
+    //% group="Buttons"
+    export function noButtonIsPressed(): boolean {
+        console.log('pressed: ' + Object.keys(state.pressedKeys).join(', '))
+        console.log(Object.keys(state.pressedKeys).length == 0)
+        return Object.keys(state.pressedKeys).length == 0
     }
 
     /**
@@ -242,7 +277,7 @@ namespace myController {
      */
     //% blockId=myController_button_code
     //% block="code of %ButtonName"
-    //% weight=87
+    //% weight=85
     //% group="Buttons"
     export function buttonCode(buttonCode: ButtonName) {
         const nameToCode: { [n: number]: string } = {
@@ -258,23 +293,12 @@ namespace myController {
     }
 
     /**
-     * Returns true if all buttons have been released.
-     */
-    //% blockId=myController_all_buttons_released
-    //% block="all buttons released"
-    //% weight=86
-    //% group="Buttons"
-    export function allButtonsReleased() {
-        return state.receivedCommandName == 'none'
-    }
-
-    /**
      * Toggles the button state. Returns true if the button is now on, false if off.
      * Each function call switches the button state.
      */
     //% blockId="myController_toggle_button"
     //% block="toggle button"
-    //% weight=85
+    //% weight=84
     //% group="Buttons"
     export function toggleButton(): boolean {
         if (!state.buttonStates[state.receivedCommandName]) {
@@ -294,7 +318,7 @@ namespace myController {
     //% blockId="myController_next_button_toggle"
     //% block="button toggle count (max %toggleMaxCount)"
     //% toggleMaxCount.defl=1
-    //% weight=84
+    //% weight=83
     //% group="Buttons"
     export function nextButtonToggle(toggleMaxCount: number = 1): number {
         if (state.buttonStates[state.receivedCommandName] == undefined) {
@@ -311,50 +335,135 @@ namespace myController {
     }
 
     /**
-     * Returns true if the specified slider value was received from the app.
-     * @param controllerSide the slider side to check
+     * Configures a button in the controller app.
+     * Use this block to set the button's visibility, color, and display label.
+     * @param code the button code (e.g., "a", "b", "up", "down")
+     * @param visibility whether the button is visible or hidden
+     * @param color the button color
+     * @param label optional text or number to display on the button
      */
-    //% blockId=myController_is_slider
-    //% block="%ControllerSide slider"
+    //% blockId="myController_set_button"
+    //% block="set button %code to %visibility %color || label %label"
+    //% inlineInputMode=inline
+    //% weight=82
+    //% expandableArgumentMode="toggle"
+    //% code.defl=''
+    //% visibility.defl=ButtonVisibility.Visible
+    //% color.defl=ButtonColor.Black
+    //% label.defl=''
+    //% group="Buttons"
+    export function setButton(
+        code: string,
+        visibility: ButtonVisibility,
+        color?: ButtonColor,
+        label?: string | number
+    ) {
+        sendData(['vc;b', code, visibility, color, label,].join(';'));
+    }
+
+
+    /**
+     * Returns true if a new value from the left slider has been received.
+     */
+    //% blockId=myController_left_slider_changed
+    //% block="left slider changed"
+    //% group="Sliders"
     //% weight=79
-    //% group="Inputs"
-    export function isSlider(controllerSide: ControllerSide): boolean {
-        return state.receivedCommandName == (controllerSide == 1 ? 'sr' : 'sl')
+    export function leftSliderChanged(): boolean {
+        state.leftSliderValue = state.receivedCommandValue
+        return state.receivedCommandName == 'sl'
     }
 
     /**
-     * Returns true if the specified joystick axis value was received from the app.
-     * @param controllerSide the joystick side to check
-     * @param direction the joystick axis to check
+     * Returns the value of the slider that triggered the last "slider changed" event.
      */
-    //% blockId=myController_is_joystick
-    //% block="%ControllerSide joystick %JoystickDirection"
-    //% weight=69
-    //% group="Inputs"
-    export function isJoystick(
-        controllerSide: ControllerSide,
-        direction: JoystickDirection
-    ): boolean {
-        return state.receivedCommandName == (controllerSide == 1 ? 'jr' : 'jl') + (direction == 1 ? 'x' : 'y')
+    //% blockId=myController_left_slider_value
+    //% block="left slider value"
+    //% weight=78
+    //% group="Sliders"
+    export function leftSliderValue(): number {
+        return state.leftSliderValue
     }
 
     /**
-     * Returns true if the specified orientation axis value was received from the app.
+     * Returns true if a new value from the right slider has been received.
+     */
+    //% blockId=myController_right_slider_changed
+    //% block="right slider changed"
+    //% group="Sliders"
+    //% weight=77
+    export function rightSliderChanged(): boolean {
+        state.leftSliderValue = state.receivedCommandValue
+        return state.receivedCommandName == 'sr'
+    }
+
+
+    /**
+         * Returns true if the left joystick axis value was updated.
+         * @param direction the joystick axis to check (X or Y)
+         */
+    //% blockId=myController_left_joystick_changed
+    //% block="left joystick %direction changed"
+    //% weight=69
+    //% group="Joysticks"
+    export function leftJoystickChanged(direction: JoystickDirection): boolean {
+        const axis = (direction === JoystickDirection.X ? 'x' : 'y');
+        return state.receivedCommandName == ('jl' + axis);
+    }
+
+    /**
+     * Returns true if the right joystick axis value was updated.
+     * @param direction the joystick axis to check (X or Y)
+     */
+    //% blockId=myController_right_joystick_changed
+    //% block="right joystick %direction changed"
+    //% weight=68
+    //% group="Joysticks"
+    export function rightJoystickChanged(direction: JoystickDirection): boolean {
+        const axis = (direction === JoystickDirection.X ? 'x' : 'y');
+        return state.receivedCommandName == ('jr' + axis);
+    }
+
+    /**
+     * Returns the value of the joystick that triggered the last "joystick changed" event.
+     */
+    //% blockId=myController_joystick_changed_value
+    //% block="joystick changed value"
+    //% weight=67
+    //% group="Joysticks"
+    export const joystickChangedValue = commandValue;
+
+
+    /**
+     * Returns true if the specified orientation axis value was updated.
      * @param axis the orientation axis to check
      */
-    //% blockId=myController_is_orientation
-    //% block="orientation %OrientationAxis"
+    //% blockId=myController_orientation_changed
+    //% block="orientation %axis changed"
     //% weight=67
-    //% group="Inputs"
-    export function isOrientation(axis: OrientationAxis): boolean {
-        let modes = {
-            1: 'ox',
-            2: 'oy',
-            3: 'oz',
-            4: 'oc',
+    //% group="Orientation"
+    export function orientationChanged(axis: OrientationAxis): boolean {
+        let command = "";
+
+        switch (axis) {
+            case 1: command = 'ox'; break;
+            case 2: command = 'oy'; break;
+            case 3: command = 'oz'; break;
+            case 4: command = 'oc'; break;
+            default: return false;
         }
-        return state.receivedCommandName == modes[axis]
+
+        return state.receivedCommandName == command;
     }
+
+    /**
+     * Returns the value from the last "orientation changed" event.
+     */
+    //% blockId=myController_orientation_changed_value
+    //% block="orientation changed value"
+    //% weight=66
+    //% group="Orientation"
+    export const orientationChangedValue = commandValue;
 
 
     /**
@@ -374,7 +483,7 @@ namespace myController {
     ) {
         initialize()
 
-        state.setupHandler = () => {
+        let setupHandler = () => {
             if (state.receivedCommandName == "-v") {
                 if (confirmationMode) {
                     sendData('vc;hasSettings;1;')
@@ -392,6 +501,8 @@ namespace myController {
                 state.pressedKeys = {};
             }
         };
+
+        state.handlerRegistry.push(setupHandler)
     }
 
     /**
@@ -434,32 +545,5 @@ namespace myController {
         if (state.receivedSerial) {
             serial.writeLine(data)
         }
-    }
-
-    /**
-     * Configures a button in the controller app.
-     * Use this block to set the button's visibility, color, and display label.
-     * @param code the button code (e.g., "a", "b", "up", "down")
-     * @param visibility whether the button is visible or hidden
-     * @param color the button color
-     * @param label optional text or number to display on the button
-     */
-    //% blockId="myController_set_button"
-    //% block="set button %code to %visibility %color || label %label"
-    //% inlineInputMode=inline
-    //% weight=48
-    //% expandableArgumentMode="toggle"
-    //% code.defl=''
-    //% visibility.defl=ButtonVisibility.Visible
-    //% color.defl=ButtonColor.Black
-    //% label.defl=''
-    //% group="Setup"
-    export function setButton(
-        code: string,
-        visibility: ButtonVisibility,
-        color?: ButtonColor,
-        label?: string | number
-    ) {
-        sendData(['vc;b', code, visibility, color, label,].join(';'));
     }
 }
