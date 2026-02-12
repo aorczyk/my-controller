@@ -303,7 +303,7 @@ myController.onSetup(ConfirmationMode.NoRequire, function () {
 
 ### Controlling a dot on a BBC micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
 
-<div style="position:relative;height:calc(300px + 5em);width:100%;overflow:hidden;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://makecode.microbit.org/---codeembed#pub:S19837-05816-32917-71121" allowfullscreen="allowfullscreen" frameborder="0" sandbox="allow-scripts allow-same-origin"></iframe></div>
+[![Open in MakeCode](https://img.shields.io/badge/Open%20in-MakeCode-orange)](https://makecode.microbit.org/#pub:S19837-05816-32917-71121)
 
 ```typescript
 myController.onCommandReceived(function () {
