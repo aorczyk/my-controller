@@ -232,13 +232,25 @@ namespace myController {
     }
 
     /**
+     * Returns true if a button was just pressed.
+     * @param buttonCode the button to check
+     */
+    //% blockId=myController_button_was_pressed
+    //% block="button %button was pressed"
+    //% group="Buttons"
+    //% weight=88
+    export function buttonWasPressed(buttonCode: string): boolean {
+        return state.receivedCommandName == buttonCode && state.pressedKeys[buttonCode];
+    }
+
+    /**
      * Returns true if a button was just released.
      * @param buttonCode the button to check
      */
     //% blockId=myController_button_was_released
     //% block="button %button was released"
     //% group="Buttons"
-    //% weight=88
+    //% weight=87
     export function buttonWasReleased(buttonCode: string): boolean {
         return state.receivedCommandName == buttonCode && !state.pressedKeys[buttonCode];
     }
@@ -248,7 +260,7 @@ namespace myController {
      */
     //% blockId=myController_all_buttons_released
     //% block="all buttons released"
-    //% weight=87
+    //% weight=86
     //% group="Buttons"
     export function allButtonsReleased() {
         // return state.receivedCommandName == 'none'
@@ -260,7 +272,7 @@ namespace myController {
      */
     //% blockId=myController_no_button_is_pressed
     //% block="no button is pressed"
-    //% weight=86
+    //% weight=85
     //% group="Buttons"
     export function noButtonIsPressed(): boolean {
         console.log('pressed: ' + Object.keys(state.pressedKeys).join(', '))
@@ -274,7 +286,7 @@ namespace myController {
      */
     //% blockId=myController_button_code
     //% block="code of %ButtonName"
-    //% weight=85
+    //% weight=84
     //% group="Buttons"
     export function buttonCode(buttonCode: ButtonName) {
         const nameToCode: { [n: number]: string } = {
@@ -382,17 +394,6 @@ namespace myController {
     }
 
     /**
-     * Returns the value from the last "slider changed" event.
-     */
-    //% blockId=myController_slider_changed_value
-    //% block="slider changed value"
-    //% weight=77
-    //% group="Sliders"
-    export function sliderChangedValue(): number {
-        return commandValue();
-    }
-
-    /**
          * Returns true if the left joystick axis value was updated.
          * @param direction the joystick axis to check (X or Y)
          */
@@ -418,17 +419,6 @@ namespace myController {
         return state.receivedCommandName == ('jr' + axis);
     }
 
-    /**
-     * Returns the value from the last "joystick changed" event.
-     */
-    //% blockId=myController_joystick_changed_value
-    //% block="joystick changed value"
-    //% weight=67
-    //% group="Joysticks"
-    export function joystickChangedValue(): number {
-        return commandValue();
-    }
-
 
     /**
      * Returns true if the specified orientation axis value was updated.
@@ -450,17 +440,6 @@ namespace myController {
         }
 
         return state.receivedCommandName == command;
-    }
-
-    /**
-     * Returns the value from the last "orientation changed" event.
-     */
-    //% blockId=myController_orientation_changed_value
-    //% block="orientation changed value"
-    //% weight=66
-    //% group="Orientation"
-    export function orientationChangedValue(): number {
-        return commandValue();
     }
 
 

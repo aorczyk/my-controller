@@ -193,7 +193,7 @@ Returns `true` if a new value from the left slider has been received.
 ```typescript
 myController.onCommandReceived(function () {
     if (myController.leftSliderChanged()) {
-        led.setBrightness(myController.sliderChangedValue())
+        led.setBrightness(myController.commandValue())
     }
 })
 ```
@@ -202,15 +202,11 @@ myController.onCommandReceived(function () {
 
 Returns `true` if a new value from the right slider has been received.
 
-##### `sliderChangedValue()`
-
-Returns the value from the last "slider changed" event.
-
 **Example - control brightness of the BBC micro:bit LED display:**
 ```typescript
 myController.onCommandReceived(function () {
     if (myController.leftSliderChanged()) {
-        led.setBrightness(myController.sliderChangedValue())
+        led.setBrightness(myController.commandValue())
     }
 })
 myController.onSetup(ConfirmationMode.NoRequire, function () {
@@ -236,10 +232,6 @@ Returns `true` if the right joystick axis value was updated.
 **Parameters:**
 - `direction` (JoystickDirection) - `X` or `Y`
 
-##### `joystickChangedValue()`
-
-Returns the value from the last "joystick changed" event.
-
 #### Orientation
 
 ##### `orientationChanged(axis)`
@@ -248,10 +240,6 @@ Returns `true` if the specified orientation axis value was updated.
 
 **Parameters:**
 - `axis` (OrientationAxis) - `X`, `Y`, `Z`, or `Compass`
-
-##### `orientationChangedValue()`
-
-Returns the value from the last "orientation changed" event.
 
 ### Setup & Configuration
 

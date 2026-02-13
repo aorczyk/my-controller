@@ -14,38 +14,38 @@ myController.onCommandReceived(function () {
     if (testCaseName == 'Basic') {
         // Test Slider
         if (myController.rightSliderChanged()) {
-            output = "Right slider = " + myController.sliderChangedValue()
+            output = "Right slider = " + myController.commandValue()
         }
         if (myController.leftSliderChanged()) {
-            output = "Left slider = " + myController.sliderChangedValue()
+            output = "Left slider = " + myController.commandValue()
         }
 
         // Test Joystick
         if (myController.rightJoystickChanged(myController.JoystickDirection.X)) {
-            output = "Right joystick X = " + myController.joystickChangedValue ()
+            output = "Right joystick X = " + myController.commandValue ()
         }
         if (myController.rightJoystickChanged(myController.JoystickDirection.Y)) {
-            output = "Right joystick Y = " + myController.joystickChangedValue ()
+            output = "Right joystick Y = " + myController.commandValue ()
         }
         if (myController.leftJoystickChanged(myController.JoystickDirection.X)) {
-            output = "Left joystick X = " + myController.joystickChangedValue ()
+            output = "Left joystick X = " + myController.commandValue ()
         }
         if (myController.leftJoystickChanged(myController.JoystickDirection.Y)) {
-            output = "Left joystick Y = " + myController.joystickChangedValue ()
+            output = "Left joystick Y = " + myController.commandValue ()
         }
 
         // Test Orientation
         if (myController.orientationChanged(myController.OrientationAxis.X)) {
-            output = "Orientation X = " + myController.orientationChangedValue()
+            output = "Orientation X = " + myController.commandValue()
         }
         if (myController.orientationChanged(myController.OrientationAxis.Y)) {
-            output = "Orientation Y = " + myController.orientationChangedValue()
+            output = "Orientation Y = " + myController.commandValue()
         }
         if (myController.orientationChanged(myController.OrientationAxis.Z)) {
-            output = "Orientation Z = " + myController.orientationChangedValue()
+            output = "Orientation Z = " + myController.commandValue()
         }
         if (myController.orientationChanged(myController.OrientationAxis.Compass)) {
-            output = "Orientation Compass = " + myController.orientationChangedValue()
+            output = "Orientation Compass = " + myController.commandValue()
         }
 
         // Test Button
