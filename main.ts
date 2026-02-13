@@ -220,25 +220,13 @@ namespace myController {
     }
 
     /**
-     * Returns true if a specific button is currently pressed.
-     * @param buttonCode the button to check
-     */
-    //% blockId=myController_is_button_pressed
-    //% block="is button %button pressed"
-    //% group="Buttons"
-    //% weight=89
-    export function isButtonPressed(buttonCode: string): boolean {
-        return state.pressedKeys[buttonCode];
-    }
-
-    /**
      * Returns true if a button was just pressed.
      * @param buttonCode the button to check
      */
     //% blockId=myController_button_was_pressed
     //% block="button %button was pressed"
     //% group="Buttons"
-    //% weight=88
+    //% weight=89
     export function buttonWasPressed(buttonCode: string): boolean {
         return state.receivedCommandName == buttonCode && state.pressedKeys[buttonCode];
     }
@@ -250,9 +238,21 @@ namespace myController {
     //% blockId=myController_button_was_released
     //% block="button %button was released"
     //% group="Buttons"
-    //% weight=87
+    //% weight=88
     export function buttonWasReleased(buttonCode: string): boolean {
         return state.receivedCommandName == buttonCode && !state.pressedKeys[buttonCode];
+    }
+
+    /**
+     * Returns true if a specific button is currently pressed.
+     * @param buttonCode the button to check
+     */
+    //% blockId=myController_is_button_pressed
+    //% block="is button %button pressed"
+    //% group="Buttons"
+    //% weight=87
+    export function isButtonPressed(buttonCode: string): boolean {
+        return state.pressedKeys[buttonCode];
     }
 
     /**
@@ -502,6 +502,18 @@ namespace myController {
     }
 
     /**
+     * Restores the controller to its default settings.
+     * This will reset all buttons, sliders, joysticks, and other controls to their initial state.
+     */
+    //% blockId="myController_restore_default_settings"
+    //% block="restore default settings"
+    //% weight=49
+    //% group="Setup"
+    export function restoreDefaultSettings() {
+        sendData('vc;init;');
+    }
+
+    /**
      * Sends a raw data command to the controller app via Bluetooth or WebUSB.
      * Use this block to send custom commands not covered by other blocks.
      * @param data the raw command string to send
@@ -509,7 +521,7 @@ namespace myController {
     //% blockId="myController_send_data"
     //% block="send data %data"
     //% inlineInputMode=inline
-    //% weight=49
+    //% weight=48
     //% data.defl=''
     //% group="Setup"
     export function sendData(data: string) {

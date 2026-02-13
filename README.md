@@ -44,18 +44,13 @@ Add this extension to your MakeCode project:
 
 Initializes Bluetooth communication with the controller app. Call this at the start of your program to enable Bluetooth control.
 
-**Example:**
-```typescript
-myController.useBluetooth()
-```
-
 #### `useSerial()`
 
 Initializes WebUSB communication with the controller app. Call this at the start of your program to enable WebUSB control.
 
 **Example:**
 ```typescript
-myController.useSerial()
+myController.useBluetooth()
 ```
 
 ### Commands handling
@@ -77,21 +72,12 @@ Returns the value of the most recently received command (for analog inputs).
 
 ### Button Input
 
-#### `isButtonPressed(buttonCode)`
+#### `buttonWasPressed(buttonCode)`
 
-Returns `true` if a specific button is currently pressed.
+Returns `true` if a button was just pressed.
 
 **Parameters:**
 - `buttonCode` (string) - Button code to check
-
-**Example:**
-```typescript
-myController.onCommandReceived(function () {
-    if (myController.isButtonPressed("1")) {
-        led.plot(2, 2)
-    }
-})
-```
 
 #### `buttonWasReleased(buttonCode)`
 
@@ -102,8 +88,33 @@ Returns `true` if a button was just released.
 
 **Example:**
 ```typescript
+myController.useBluetooth()
 myController.onCommandReceived(function () {
+    if (myController.buttonWasPressed("1")) {
+        led.plot(2, 2)
+    }
     if (myController.buttonWasReleased("1")) {
+        led.unplot(2, 2)
+    }
+})
+```
+
+#### `isButtonPressed(buttonCode)`
+
+Returns `true` if a specific button is currently pressed.
+
+**Parameters:**
+- `buttonCode` (string) - Button code to check
+
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.onCommandReceived(function () {
+    if (myController.isButtonPressed("1") && myController.isButtonPressed("2")) {
+        led.plot(2, 2)
+    }
+
+    if (!myController.isButtonPressed("1") || !myController.isButtonPressed("2")) {
         led.unplot(2, 2)
     }
 })
@@ -137,13 +148,14 @@ Returns `true` if the button toggles on, `false` if it toggles off. Maintains in
 
 **Example:**
 ```typescript
+myController.useBluetooth()
 myController.onCommandReceived(function () {
-    if (myController.isButtonPressed("1")) {
+    if (myController.buttonWasPressed("1")) {
         if (myController.toggleButton()) {
-            myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, '<i class="fa-solid fa-check"></i>')
+            myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, '<i class="fa-solid fa-check"></i>')
             basic.showIcon(IconNames.Yes)
         } else {
-            myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Red, '<i class="fa-solid fa-xmark"></i>')
+            myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Red, '<i class="fa-solid fa-xmark"></i>')
             basic.showIcon(IconNames.No)
         }
     }
@@ -159,10 +171,11 @@ Returns the current toggle count (1 to maxCount). Each press increments the coun
 
 **Example:**
 ```typescript
+myController.useBluetooth()
 myController.onCommandReceived(function () {
-    if (myController.isButtonPressed("1")) {
+    if (myController.buttonWasPressed("1")) {
         state = myController.nextButtonToggle(3)
-        myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, state)
+        myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, state)
         basic.showString("" + (state))
     }
 })
@@ -180,6 +193,13 @@ Configures a button's appearance in the controller app.
 - `color` (ButtonColor) - Optional. `Black`, `Green`, `Blue`, `Yellow`, or `Red`
 - `label` (string|number) - Optional text or number to display on the button. You can use also HTML with FontAwesome icons (e.g., `<i class='fa-solid fa-heart'></i>`)
 
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.onSetup(myController.ConfirmationMode.NoRequire, function () {
+    myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Red, "<i class='fa fa-heart'></i>")
+})
+```
 
 ### Analog Inputs
 
@@ -189,27 +209,19 @@ Configures a button's appearance in the controller app.
 
 Returns `true` if a new value from the left slider has been received.
 
-**Example:**
-```typescript
-myController.onCommandReceived(function () {
-    if (myController.leftSliderChanged()) {
-        led.setBrightness(myController.commandValue())
-    }
-})
-```
-
 ##### `rightSliderChanged()`
 
 Returns `true` if a new value from the right slider has been received.
 
 **Example - control brightness of the BBC micro:bit LED display:**
 ```typescript
+myController.useBluetooth()
 myController.onCommandReceived(function () {
-    if (myController.leftSliderChanged()) {
+    if (myController.rightSliderChanged()) {
         led.setBrightness(myController.commandValue())
     }
 })
-myController.onSetup(ConfirmationMode.NoRequire, function () {
+myController.onSetup(myController.ConfirmationMode.NoRequire, function () {
     myController.applySettings("vc;init; vc;show;sr; vc;sr;0;0;255;1;0;0;1;100;")
 })
 basic.showIcon(IconNames.Heart)
@@ -253,9 +265,11 @@ Configures the controller interface when the app connects.
 
 **Example:**
 ```typescript
-myController.onSetup(ConfirmationMode.Require, function () {
-    myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Green, "A")
-    myController.setButton("2", ButtonVisibility.Visible, ButtonColor.Red, "B")
+myController.useBluetooth()
+myController.onSetup(myController.ConfirmationMode.Require, function () {
+    myController.restoreDefaultSettings()
+    myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, "A")
+    myController.setButton("2", myController.ButtonVisibility.Visible, myController.ButtonColor.Red, "B")
 })
 ```
 
@@ -268,10 +282,15 @@ Imports controller configuration from a settings string exported from the app.
 
 **Example:**
 ```typescript
-myController.onSetup(SetupConfirmation.NoRequire, function () {
-    myController.applySettings("vc;init; vc;b;1;1;1;A; vc;b;2;1;4;B;")
+myController.useBluetooth()
+myController.onSetup(myController.ConfirmationMode.NoRequire, function () {
+    myController.applySettings("vc;init; vc;b;1;1;2;C; vc;b;2;1;3;D;")
 })
 ```
+
+#### `restoreDefaultSettings()`
+
+Restores the controller to its default settings. This will reset all buttons, sliders, joysticks, and other controls to their initial state.
 
 #### `sendData(data)`
 
@@ -280,18 +299,12 @@ Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this
 **Parameters:**
 - `data` (string) - The raw command string to send
 
-**Example:**
-```typescript
-myController.onSetup(ConfirmationMode.NoRequire, function () {
-    myController.setButton("1", ButtonVisibility.Visible, ButtonColor.Red, "<i class='fa fa-heart'></i>")
-})
-```
 
 ## 💡 Example
 
 ### Controlling a dot on a BBC micro:bit screen using arrow keys, sliders, joystick, and a device orientation:
 
-[![Open in MakeCode](https://img.shields.io/badge/Open%20in-MakeCode-orange)](https://makecode.microbit.org/#pub:S19837-05816-32917-71121)
+[![Open in MakeCode](https://img.shields.io/badge/Open%20in-MakeCode-orange)](https://makecode.microbit.org/S19837-05816-32917-71121)
 
 ```typescript
 myController.onCommandReceived(function () {
@@ -323,20 +336,20 @@ myController.onCommandReceived(function () {
     if (myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowRight)) && myController.isButtonPressed(myController.buttonCode(myController.ButtonName.ArrowLeft))) {
         ledX = 2
     }
-    if (myController.isButtonPressed("1")) {
+    if (myController.buttonWasPressed("1")) {
         if (myController.toggleButton()) {
             myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Green, "")
         } else {
             myController.setButton("1", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, "")
         }
     }
-    if (myController.isButtonPressed("2")) {
+    if (myController.buttonWasPressed("2")) {
         myController.setButton("2", myController.ButtonVisibility.Visible, myController.ButtonColor.Black, myController.nextButtonToggle(3))
     }
-    if (myController.isButtonPressed("3")) {
+    if (myController.buttonWasPressed("3")) {
         basic.showIcon(IconNames.House)
     }
-    if (myController.isButtonPressed("4")) {
+    if (myController.buttonWasPressed("4")) {
         basic.showIcon(IconNames.Heart)
     }
     if (myController.buttonWasReleased("3") || myController.buttonWasReleased("4")) {
@@ -354,6 +367,7 @@ ledX = 2
 ledY = 2
 led.plot(ledX, ledY)
 myController.useBluetooth()
+myController.useSerial()
 ```
 
 ## 📋 Requirements
