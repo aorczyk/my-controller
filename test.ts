@@ -116,6 +116,16 @@ myController.onCommandReceived(function () {
             output = "a and sr = " + myController.commandValue()
         }
     }
+
+    if (testCaseName == 'Button is pressed vs was pressed') {
+        if (myController.isButtonPressed("a")) {
+            output = "a is pressed"
+        }
+
+        if (myController.buttonWasPressed("a")) {
+            output = "a was pressed"
+        }
+    }
 })
 
 // Basic test cases
@@ -353,6 +363,40 @@ testCases.forEach((test) => {
     )
 
     myController.onDataReceived('!a')
+    basic.pause(20)
+})();
+
+
+(function () {
+    testCaseCounter++;
+    testCaseName = 'Button is pressed vs was pressed'
+    console.log(testCaseCounter + '. ' + testCaseName)
+
+    output = ''
+    myController.onDataReceived('a')
+    basic.pause(20)
+
+    let expect = 'a was pressed'
+
+    control.assert(
+        output == expect,
+        `output: ${output}\nexpect: ${expect}`
+    )
+
+    output = ''
+    myController.onDataReceived('b')
+    basic.pause(20)
+
+    expect = 'a is pressed'
+
+    control.assert(
+        output == expect,
+        `output: ${output}\nexpect: ${expect}`
+    )
+
+    myController.onDataReceived('!a')
+    basic.pause(20)
+    myController.onDataReceived('!b')
     basic.pause(20)
 })();
 
