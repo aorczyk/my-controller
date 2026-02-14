@@ -263,7 +263,6 @@ namespace myController {
     //% weight=86
     //% group="Buttons"
     export function allButtonsReleased() {
-        // return state.receivedCommandName == 'none'
         return state.lastButtonReleased
     }
 
@@ -275,8 +274,6 @@ namespace myController {
     //% weight=85
     //% group="Buttons"
     export function noButtonIsPressed(): boolean {
-        console.log('pressed: ' + Object.keys(state.pressedKeys).join(', '))
-        console.log(Object.keys(state.pressedKeys).length == 0)
         return Object.keys(state.pressedKeys).length == 0
     }
 

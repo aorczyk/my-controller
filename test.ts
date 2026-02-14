@@ -7,10 +7,33 @@ myController.useBluetooth()
 let output = ""
 let testCaseName = ''
 let testCaseCounter = 0
+let ledX = -1
+let ledY = 0
+let lastTestCaseCounter = 0
+
+function showTestCounter() {
+    if (testCaseCounter > lastTestCaseCounter) {
+        lastTestCaseCounter = testCaseCounter
+        ledX++
+        if (ledX > 4) {
+            ledX = 0
+            ledY++
+        }
+
+        if (ledY > 4) {
+            ledY = 0
+            basic.clearScreen()
+        }
+
+        led.plot(ledX, ledY)
+    }
+}
 
 myController.onCommandReceived(function () {
+    showTestCounter()
+
     console.log('> ' + myController.commandName() + ' : ' + myController.commandValue())
-    
+
     if (testCaseName == 'Basic') {
         // Test Slider
         if (myController.rightSliderChanged()) {
@@ -161,20 +184,20 @@ const testCases: [string, string, string][] = [
 ];
 
 testCases.forEach((test) => {
-    testCaseCounter++;
     let [name, command, expect] = test
     let [commandName, commandValue] = command.split("=")
 
     output = ''
     myController.onDataReceived(command)
 
-    basic.pause(20)
+    basic.pause(50)
 
     if (expect) {
+        testCaseCounter++;
         console.log(testCaseCounter + '. ' + name)
 
         while (myController.commandName() != commandName && '!' + myController.commandName() != commandName) {
-            basic.pause(20)
+            basic.pause(50)
         }
         control.assert(
             output == expect,
@@ -192,23 +215,23 @@ testCases.forEach((test) => {
     output = ''
 
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
 
     let expect = 'no button pressed'
-    basic.pause(20)
+    basic.pause(50)
     control.assert(
         output == expect,
         `output: ${output}\nexpect: ${expect}`
     )
 
-    basic.pause(20)
+    basic.pause(50)
 
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('b')
-    basic.pause(20)
+    basic.pause(50)
 
     expect = 'a and b pressed'
 
@@ -218,9 +241,9 @@ testCases.forEach((test) => {
     )
 
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!b')
-    basic.pause(20)
+    basic.pause(50)
 })();
 
 
@@ -232,13 +255,13 @@ testCases.forEach((test) => {
     output = ''
 
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('b')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!b')
-    basic.pause(20)
+    basic.pause(50)
     
     let expect = 'all buttons released'
 
@@ -252,11 +275,11 @@ testCases.forEach((test) => {
     output = ''
 
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
     // myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('none')
     basic.pause(200)
 
@@ -271,7 +294,7 @@ testCases.forEach((test) => {
     output = ''
 
     myController.onDataReceived('sr=100')
-    basic.pause(20)
+    basic.pause(50)
 
     expect = ''
 
@@ -289,18 +312,18 @@ testCases.forEach((test) => {
 
     output = ''
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
     
     myController.onDataReceived('b')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!b')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('b')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!b')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('b')
 
     let expect = 'b pressed'
@@ -321,18 +344,18 @@ testCases.forEach((test) => {
 
     output = ''
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
 
     myController.onDataReceived('sr=1')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('sr=2')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('sr=3')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('sr=4')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('sr=5')
     basic.pause(600)
 
@@ -351,7 +374,7 @@ testCases.forEach((test) => {
 
     output = ''
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('sr=1')
     basic.pause(50)
 
@@ -363,7 +386,7 @@ testCases.forEach((test) => {
     )
 
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
 })();
 
 
@@ -374,7 +397,7 @@ testCases.forEach((test) => {
 
     output = ''
     myController.onDataReceived('a')
-    basic.pause(20)
+    basic.pause(50)
 
     let expect = 'a was pressed'
 
@@ -385,7 +408,7 @@ testCases.forEach((test) => {
 
     output = ''
     myController.onDataReceived('b')
-    basic.pause(20)
+    basic.pause(50)
 
     expect = 'a is pressed'
 
@@ -395,10 +418,11 @@ testCases.forEach((test) => {
     )
 
     myController.onDataReceived('!a')
-    basic.pause(20)
+    basic.pause(50)
     myController.onDataReceived('!b')
-    basic.pause(20)
+    basic.pause(50)
 })();
 
-console.log('Test end: ' + testCaseCounter)
+console.log('-------------')
+console.log(`All tests finished (${testCaseCounter})`)
 basic.showIcon(IconNames.Yes)
