@@ -116,7 +116,7 @@ namespace myController {
     export function onDataReceived(command: string) {
         let [commandName, commandValue] = command.split("=")
 
-        // Button press/release or some other non-numeric command (to be handled later).
+        // Button press/release - command without a value.
         if (commandValue == undefined) {
             commandValue = '0'
 
@@ -124,6 +124,7 @@ namespace myController {
                 commandName = commandName.slice(1)
                 delete state.pressedKeys[commandName]
             } else if (commandName == 'none') {
+                // If some other command without a value is stored in pressedKeys.
                 state.pressedKeys = {}
             } else {
                 state.pressedKeys[commandName] = true
