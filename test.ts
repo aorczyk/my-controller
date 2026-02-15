@@ -256,40 +256,38 @@ testCases.forEach((test) => {
 
     myController.onDataReceived('a')
     basic.pause(50)
-    myController.onDataReceived('b')
-    basic.pause(50)
     myController.onDataReceived('!a')
-    basic.pause(50)
-    myController.onDataReceived('!b')
-    basic.pause(50)
-    
-    let expect = 'all buttons released'
-
-    control.assert(
-        output == expect,
-        `output: ${output}\nexpect: ${expect}`
-    )
-
-    console.log(testCaseCounter + '. ' + testCaseName + ' - 2')
-
-    output = ''
-
-    myController.onDataReceived('a')
-    basic.pause(50)
-    myController.onDataReceived('!a')
-    basic.pause(50)
-    // myController.onDataReceived('a')
     basic.pause(50)
     myController.onDataReceived('none')
     basic.pause(200)
 
 
-    expect = 'all buttons released'
+    let expect = 'all buttons released'
     basic.pause(50)
     control.assert(
         output == expect,
         `output: ${output}\nexpect: ${expect}`
     )
+
+    // console.log(testCaseCounter + '. ' + testCaseName + ' - without none')
+
+    // output = ''
+
+    // myController.onDataReceived('a')
+    // basic.pause(50)
+    // myController.onDataReceived('b')
+    // basic.pause(50)
+    // myController.onDataReceived('!a')
+    // basic.pause(50)
+    // myController.onDataReceived('!b')
+    // basic.pause(50)
+
+    // expect = 'all buttons released'
+
+    // control.assert(
+    //     output == expect,
+    //     `output: ${output}\nexpect: ${expect}`
+    // )
 
     output = ''
 

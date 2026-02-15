@@ -76,7 +76,6 @@ namespace myController {
 
         // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
         pressedKeys: { [key: string]: boolean } = {};
-        lastButtonReleased = false;
 
         // Storing toggle states and counts for buttons.
         buttonStates: { [key: string]: number } = {};
@@ -130,10 +129,6 @@ namespace myController {
                 state.pressedKeys[commandName] = true
                 commandValue = '1'
             }
-
-            state.lastButtonReleased = Object.keys(state.pressedKeys).length == 0
-        } else {
-            state.lastButtonReleased = false
         }
         
         state.receivedCommands[commandName] = parseFloat(commandValue)
@@ -263,7 +258,7 @@ namespace myController {
     //% weight=86
     //% group="Buttons"
     export function allButtonsReleased() {
-        return state.lastButtonReleased
+        return state.receivedCommandName == 'none'
     }
 
     /**
