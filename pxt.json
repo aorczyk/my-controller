@@ -1,6 +1,6 @@
 {
     "name": "my controller",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "description": "A MakeCode extension that enables control of your BBC micro:bit through an app https://mymicrobit.medlight.pl/ using Bluetooth or WebUSB - micro:bit (V2) only.",
     "license": "MIT",
     "dependencies": {
