@@ -68,61 +68,52 @@ namespace myController {
         NoRequire = 0,
     }
 
-    // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
-    let receivedCommands: { [key: string]: number } = undefined;
-    let receivedCommandName = "";
-    let receivedCommandValue = 0;
+    class State {
+        // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
+        receivedCommands: { [key: string]: number } = {};
+        receivedCommandName: string;
+        receivedCommandValue: number;
 
-    // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
-    let pressedKeys: { [key: string]: boolean } = undefined;
+        // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
+        pressedKeys: { [key: string]: boolean } = {};
 
-    // Storing toggle states and counts for buttons.
-    let buttonStates: { [key: string]: number } = undefined;
+        // Storing toggle states and counts for buttons.
+        buttonStates: { [key: string]: number } = {};
 
-    // Communication method flags.
-    let receivedBLE = false;
-    let receivedSerial = false;
+        // Communication method flags.
+        receivedBLE = false;
+        receivedSerial = false;
 
-    // Command handler registry.
-    let handlerRegistry: (() => void)[] = undefined;
+        // Command handler registry.
+        handlerRegistry: (() => void)[] = [];
 
-    let initialized = false;
-    let processing = false;
-
-    function processCommands() {
-        if (processing) return;
-        processing = true;
-
-        let keys = Object.keys(receivedCommands);
-        while (keys.length > 0) {
-            for (let i = 0; i < keys.length; i++) {
-                receivedCommandName = keys[i];
-                receivedCommandValue = receivedCommands[keys[i]];
-                delete receivedCommands[keys[i]];
-
-                for (let j = 0; j < handlerRegistry.length; j++) {
-                    handlerRegistry[j]();
-                }
-            }
-            // Check if new commands arrived while handlers were running (e.g. after basic.pause).
-            keys = Object.keys(receivedCommands);
-        }
-
-        processing = false;
+        constructor() { }
     }
 
+    let state: State = undefined;
+
     function initialize() {
-        if (!initialized) {
-            initialized = true;
-            receivedCommands = {};
-            pressedKeys = {};
-            buttonStates = {};
-            handlerRegistry = [];
+        if (state == undefined) {
+            state = new State();
+
+            // Main loop to process incoming commands one by one.
+            basic.forever(function () {
+                let commands = state ? Object.keys(state.receivedCommands) : []
+
+                if (commands.length) {
+                    state.receivedCommandName = commands[0]
+                    state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
+                    delete state.receivedCommands[state.receivedCommandName];
+
+                    state.handlerRegistry.forEach(handler => {
+                        handler()
+                    })
+                }
+            })
         }
     }
 
     export function onDataReceived(command: string) {
-        if (!receivedCommands || !pressedKeys) return;
         let [commandName, commandValue] = command.split("=")
 
         // Button press/release - command without a value.
@@ -131,18 +122,17 @@ namespace myController {
 
             if (commandName[0] == '!') {
                 commandName = commandName.slice(1)
-                delete pressedKeys[commandName]
+                delete state.pressedKeys[commandName]
             } else if (commandName == 'none') {
                 // If some other command without a value is stored in pressedKeys.
-                pressedKeys = {}
+                state.pressedKeys = {}
             } else {
-                pressedKeys[commandName] = true
+                state.pressedKeys[commandName] = true
                 commandValue = '1'
             }
         }
 
-        receivedCommands[commandName] = parseFloat(commandValue)
-        processCommands()
+        state.receivedCommands[commandName] = parseFloat(commandValue)
     }
 
     // Blocks
@@ -161,8 +151,8 @@ namespace myController {
         // Initialize Bluetooth UART service and serial communication.
         bluetooth.startUartService()
         bluetooth.onBluetoothConnected(() => {
-            receivedBLE = true;
-            pressedKeys = {};
+            state.receivedBLE = true;
+            state.pressedKeys = {};
         })
         bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             onDataReceived(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
@@ -200,7 +190,7 @@ namespace myController {
     //% group="Commands"
     export function onCommandReceived(handler: () => void) {
         initialize()
-        handlerRegistry.push(handler)
+        state.handlerRegistry.push(handler)
     }
 
     /**
@@ -211,7 +201,7 @@ namespace myController {
     //% weight=91
     //% group="Commands"
     export function commandName(): string {
-        return receivedCommandName
+        return state.receivedCommandName
     }
 
     /**
@@ -222,7 +212,7 @@ namespace myController {
     //% weight=90
     //% group="Commands"
     export function commandValue(): number {
-        return receivedCommandValue
+        return state.receivedCommandValue
     }
 
     /**
@@ -234,7 +224,7 @@ namespace myController {
     //% group="Buttons"
     //% weight=89
     export function buttonWasPressed(buttonCode: string): boolean {
-        return receivedCommandName == buttonCode && pressedKeys[buttonCode];
+        return state.receivedCommandName == buttonCode && state.pressedKeys[buttonCode];
     }
 
     /**
@@ -246,7 +236,7 @@ namespace myController {
     //% group="Buttons"
     //% weight=88
     export function buttonWasReleased(buttonCode: string): boolean {
-        return receivedCommandName == buttonCode && !pressedKeys[buttonCode];
+        return state.receivedCommandName == buttonCode && !state.pressedKeys[buttonCode];
     }
 
     /**
@@ -258,7 +248,7 @@ namespace myController {
     //% group="Buttons"
     //% weight=87
     export function isButtonPressed(buttonCode: string): boolean {
-        return pressedKeys[buttonCode];
+        return state.pressedKeys[buttonCode];
     }
 
     /**
@@ -269,7 +259,7 @@ namespace myController {
     //% weight=86
     //% group="Buttons"
     export function allButtonsReleased() {
-        return receivedCommandName == 'none'
+        return state.receivedCommandName == 'none'
     }
 
     /**
@@ -280,7 +270,7 @@ namespace myController {
     //% weight=85
     //% group="Buttons"
     export function noButtonIsPressed(): boolean {
-        return Object.keys(pressedKeys).length == 0
+        return Object.keys(state.pressedKeys).length == 0
     }
 
     /**
@@ -291,16 +281,17 @@ namespace myController {
     //% block="code of %ButtonName"
     //% weight=84
     //% group="Buttons"
-    export function buttonCode(buttonCode: ButtonName): string {
-        switch (buttonCode) {
-            case ButtonName.ArrowUp: return "up";
-            case ButtonName.ArrowDown: return "down";
-            case ButtonName.ArrowRight: return "right";
-            case ButtonName.ArrowLeft: return "left";
-            case ButtonName.Enter: return "enter";
-            case ButtonName.Space: return "space";
-            default: return "";
+    export function buttonCode(buttonCode: ButtonName) {
+        const nameToCode: { [n: number]: string } = {
+            [ButtonName.ArrowUp]: "up",
+            [ButtonName.ArrowDown]: "down",
+            [ButtonName.ArrowRight]: "right",
+            [ButtonName.ArrowLeft]: "left",
+            [ButtonName.Enter]: "enter",
+            [ButtonName.Space]: "space",
         }
+
+        return nameToCode[buttonCode] || ""
     }
 
     /**
@@ -312,13 +303,13 @@ namespace myController {
     //% weight=84
     //% group="Buttons"
     export function toggleButton(): boolean {
-        if (!buttonStates[receivedCommandName]) {
-            buttonStates[receivedCommandName] = 1;
+        if (!state.buttonStates[state.receivedCommandName]) {
+            state.buttonStates[state.receivedCommandName] = 1;
         } else {
-            buttonStates[receivedCommandName] = 0;
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        return buttonStates[receivedCommandName] == 1;
+        return state.buttonStates[state.receivedCommandName] == 1;
     }
 
     /**
@@ -332,17 +323,17 @@ namespace myController {
     //% weight=83
     //% group="Buttons"
     export function nextButtonToggle(toggleMaxCount: number = 1): number {
-        if (buttonStates[receivedCommandName] == undefined) {
-            buttonStates[receivedCommandName] = 0;
+        if (state.buttonStates[state.receivedCommandName] == undefined) {
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        if (buttonStates[receivedCommandName] < toggleMaxCount) {
-            buttonStates[receivedCommandName] += 1;
+        if (state.buttonStates[state.receivedCommandName] < toggleMaxCount) {
+            state.buttonStates[state.receivedCommandName] += 1;
         } else {
-            buttonStates[receivedCommandName] = 0;
+            state.buttonStates[state.receivedCommandName] = 0;
         }
 
-        return buttonStates[receivedCommandName];
+        return state.buttonStates[state.receivedCommandName];
     }
 
     /**
@@ -369,7 +360,7 @@ namespace myController {
         color?: ButtonColor,
         label?: string | number
     ) {
-        sendData('vc;b;' + code + ';' + visibility + ';' + color + ';' + label + ';');
+        sendData(['vc;b', code, visibility, color, label,].join(';'));
     }
 
 
@@ -381,7 +372,7 @@ namespace myController {
     //% group="Sliders"
     //% weight=79
     export function leftSliderChanged(): boolean {
-        return receivedCommandName == 'sl'
+        return state.receivedCommandName == 'sl'
     }
 
     /**
@@ -392,7 +383,7 @@ namespace myController {
     //% group="Sliders"
     //% weight=78
     export function rightSliderChanged(): boolean {
-        return receivedCommandName == 'sr'
+        return state.receivedCommandName == 'sr'
     }
 
     /**
@@ -405,7 +396,7 @@ namespace myController {
     //% group="Joysticks"
     export function leftJoystickChanged(direction: JoystickDirection): boolean {
         const axis = (direction === JoystickDirection.X ? 'x' : 'y');
-        return receivedCommandName == ('jl' + axis);
+        return state.receivedCommandName == ('jl' + axis);
     }
 
     /**
@@ -418,8 +409,9 @@ namespace myController {
     //% group="Joysticks"
     export function rightJoystickChanged(direction: JoystickDirection): boolean {
         const axis = (direction === JoystickDirection.X ? 'x' : 'y');
-        return receivedCommandName == ('jr' + axis);
+        return state.receivedCommandName == ('jr' + axis);
     }
+
 
     /**
      * Returns true if the specified orientation axis value was updated.
@@ -430,15 +422,17 @@ namespace myController {
     //% weight=67
     //% group="Orientation"
     export function orientationChanged(axis: OrientationAxis): boolean {
-        let command: string;
+        let command = "";
+
         switch (axis) {
-            case OrientationAxis.X: command = 'ox'; break;
-            case OrientationAxis.Y: command = 'oy'; break;
-            case OrientationAxis.Z: command = 'oz'; break;
-            case OrientationAxis.Compass: command = 'oc'; break;
+            case 1: command = 'ox'; break;
+            case 2: command = 'oy'; break;
+            case 3: command = 'oz'; break;
+            case 4: command = 'oc'; break;
             default: return false;
         }
-        return receivedCommandName == command;
+
+        return state.receivedCommandName == command;
     }
 
 
@@ -460,7 +454,7 @@ namespace myController {
         initialize()
 
         let setupHandler = () => {
-            if (receivedCommandName == "-v") {
+            if (state.receivedCommandName == "-v") {
                 if (confirmationMode) {
                     sendData('vc;hasSettings;1;')
                 } else {
@@ -468,17 +462,17 @@ namespace myController {
                     handler()
                     sendData('vc;loader;0;')
                 }
-            } else if (receivedCommandName == "getSettings") {
+            } else if (state.receivedCommandName == "getSettings") {
                 sendData('vc;loader;1;')
                 handler()
                 sendData('vc;loader;0;')
-            } else if (receivedCommandName == "usbOn") {
-                receivedSerial = true;
-                pressedKeys = {};
+            } else if (state.receivedCommandName == "usbOn") {
+                state.receivedSerial = true;
+                state.pressedKeys = {};
             }
         };
 
-        handlerRegistry.push(setupHandler)
+        state.handlerRegistry.push(setupHandler)
     }
 
     /**
@@ -524,13 +518,13 @@ namespace myController {
     //% data.defl=''
     //% group="Setup"
     export function sendData(data: string) {
-        if (!initialized) return;
+        initialize()
 
-        if (receivedBLE) {
+        if (state.receivedBLE) {
             bluetooth.uartWriteLine(data)
         }
 
-        if (receivedSerial) {
+        if (state.receivedSerial) {
             serial.writeLine(data)
         }
     }
