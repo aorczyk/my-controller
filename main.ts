@@ -96,18 +96,18 @@ namespace myController {
         if (state == undefined) {
             state = new State();
 
-            // Main loop to process incoming commands one by one.
+            // Main loop to process all pending commands each tick.
             basic.forever(function () {
-                let commands = state ? Object.keys(state.receivedCommands) : []
+                let keys = Object.keys(state.receivedCommands);
 
-                if (commands.length) {
-                    state.receivedCommandName = commands[0]
-                    state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
-                    delete state.receivedCommands[state.receivedCommandName];
+                for (let i = 0; i < keys.length; i++) {
+                    state.receivedCommandName = keys[i];
+                    state.receivedCommandValue = state.receivedCommands[keys[i]];
+                    delete state.receivedCommands[keys[i]];
 
-                    state.handlerRegistry.forEach(handler => {
-                        handler()
-                    })
+                    for (let j = 0; j < state.handlerRegistry.length; j++) {
+                        state.handlerRegistry[j]();
+                    }
                 }
             })
         }
@@ -273,6 +273,15 @@ namespace myController {
         return Object.keys(state.pressedKeys).length == 0
     }
 
+    const buttonNameToCode: { [n: number]: string } = {
+        [ButtonName.ArrowUp]: "up",
+        [ButtonName.ArrowDown]: "down",
+        [ButtonName.ArrowRight]: "right",
+        [ButtonName.ArrowLeft]: "left",
+        [ButtonName.Enter]: "enter",
+        [ButtonName.Space]: "space",
+    }
+
     /**
      * Returns the code for the specified button name.
      * @param buttonCode the button to get the code for
@@ -282,16 +291,7 @@ namespace myController {
     //% weight=84
     //% group="Buttons"
     export function buttonCode(buttonCode: ButtonName) {
-        const nameToCode: { [n: number]: string } = {
-            [ButtonName.ArrowUp]: "up",
-            [ButtonName.ArrowDown]: "down",
-            [ButtonName.ArrowRight]: "right",
-            [ButtonName.ArrowLeft]: "left",
-            [ButtonName.Enter]: "enter",
-            [ButtonName.Space]: "space",
-        }
-
-        return nameToCode[buttonCode] || ""
+        return buttonNameToCode[buttonCode] || ""
     }
 
     /**
@@ -360,7 +360,7 @@ namespace myController {
         color?: ButtonColor,
         label?: string | number
     ) {
-        sendData(['vc;b', code, visibility, color, label,].join(';'));
+        sendData('vc;b;' + code + ';' + visibility + ';' + color + ';' + label + ';');
     }
 
 
@@ -412,6 +412,12 @@ namespace myController {
         return state.receivedCommandName == ('jr' + axis);
     }
 
+    const orientationAxisToCommand: { [n: number]: string } = {
+        [OrientationAxis.X]: 'ox',
+        [OrientationAxis.Y]: 'oy',
+        [OrientationAxis.Z]: 'oz',
+        [OrientationAxis.Compass]: 'oc',
+    }
 
     /**
      * Returns true if the specified orientation axis value was updated.
@@ -422,17 +428,8 @@ namespace myController {
     //% weight=67
     //% group="Orientation"
     export function orientationChanged(axis: OrientationAxis): boolean {
-        let command = "";
-
-        switch (axis) {
-            case 1: command = 'ox'; break;
-            case 2: command = 'oy'; break;
-            case 3: command = 'oz'; break;
-            case 4: command = 'oc'; break;
-            default: return false;
-        }
-
-        return state.receivedCommandName == command;
+        let command = orientationAxisToCommand[axis];
+        return command ? state.receivedCommandName == command : false;
     }
 
 
@@ -518,7 +515,7 @@ namespace myController {
     //% data.defl=''
     //% group="Setup"
     export function sendData(data: string) {
-        initialize()
+        if (!state) return;
 
         if (state.receivedBLE) {
             bluetooth.uartWriteLine(data)
