@@ -71,7 +71,7 @@ namespace myController {
     class State {
         // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
         receivedCommands: { [key: string]: number } = {};
-
+        commandQueue: string[] = []
         receivedCommandName: string;
         receivedCommandValue: number;
 
@@ -105,51 +105,66 @@ namespace myController {
         if (state.processing) return;
         state.processing = true;
 
-        control.inBackground(function() {
-            let commands = Object.keys(state.receivedCommands);
-            while (commands.length > 0) {
-                for (let i = 0; i < commands.length; i++) {
-                    state.receivedCommandName = commands[i];
-                    state.receivedCommandValue = state.receivedCommands[commands[i]];
-                    delete state.receivedCommands[commands[i]];
+        control.inBackground(function () {
 
-                    for (let j = 0; j < state.handlerRegistry.length; j++) {
-                        state.handlerRegistry[j]();
-                    }
+            while (state.commandQueue.length > 0) {
 
-                    if (i % 3 === 0) {
-                        basic.pause(0);
-                    }
+                let commandName = state.commandQueue.shift();
+                let value = state.receivedCommands[commandName];
+
+                delete state.receivedCommands[commandName];
+
+                state.receivedCommandName = commandName;
+                state.receivedCommandValue = value;
+
+                for (let j = 0; j < state.handlerRegistry.length; j++) {
+                    state.handlerRegistry[j]();
                 }
-                // Check if new commands arrived while handlers were running (e.g. after basic.pause).
-                commands = Object.keys(state.receivedCommands);
+
+                basic.pause(0); // important for BLE
             }
 
             state.processing = false;
-        })
+        });
     }
 
     export function onDataReceived(command: string) {
-        let [commandName, commandValue] = command.split("=")
 
-        // Button press/release - command without a value.
-        if (commandValue == undefined) {
-            commandValue = '0'
+        let separatorIndex = command.indexOf("=")
 
-            if (commandName[0] == '!') {
+        let commandName: string
+        let commandValue: string
+
+        if (separatorIndex === -1) {
+            // Command without value (button type)
+            commandName = command
+            commandValue = "0"
+
+            if (commandName.charAt(0) == "!") {
                 commandName = commandName.slice(1)
                 delete state.pressedKeys[commandName]
-            } else if (commandName == 'none') {
-                // If some other command without a value is stored in pressedKeys.
+            } else if (commandName == "none") {
                 state.pressedKeys = {}
             } else {
                 state.pressedKeys[commandName] = true
-                commandValue = '1'
+                commandValue = "1"
             }
+
+        } else {
+            commandName = command.slice(0, separatorIndex)
+            commandValue = command.slice(separatorIndex + 1)
         }
 
-        // Last write wins - 
-        state.receivedCommands[commandName] = parseFloat(commandValue)
+        let numericValue = parseFloat(commandValue)
+
+        // Add to the queue only if it's a new command
+        if (state.receivedCommands[commandName] === undefined) {
+            state.commandQueue.push(commandName)
+        }
+
+        // Overwrite the value (last value wins)
+        state.receivedCommands[commandName] = numericValue
+
         processCommands()
     }
 
