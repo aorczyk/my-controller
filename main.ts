@@ -71,6 +71,7 @@ namespace myController {
     class State {
         // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
         receivedCommands: { [key: string]: number } = {};
+
         receivedCommandName: string;
         receivedCommandValue: number;
 
@@ -87,6 +88,8 @@ namespace myController {
         // Command handler registry.
         handlerRegistry: (() => void)[] = [];
 
+        processing = false;
+
         constructor() { }
     }
 
@@ -95,22 +98,35 @@ namespace myController {
     function initialize() {
         if (state == undefined) {
             state = new State();
-
-            // Main loop to process incoming commands one by one.
-            basic.forever(function () {
-                let commands = state ? Object.keys(state.receivedCommands) : []
-
-                if (commands.length) {
-                    state.receivedCommandName = commands[0]
-                    state.receivedCommandValue = state.receivedCommands[state.receivedCommandName]
-                    delete state.receivedCommands[state.receivedCommandName];
-
-                    state.handlerRegistry.forEach(handler => {
-                        handler()
-                    })
-                }
-            })
         }
+    }
+
+    function processCommands() {
+        if (state.processing) return;
+        state.processing = true;
+
+        control.inBackground(function() {
+            let commands = Object.keys(state.receivedCommands);
+            while (commands.length > 0) {
+                for (let i = 0; i < commands.length; i++) {
+                    state.receivedCommandName = commands[i];
+                    state.receivedCommandValue = state.receivedCommands[commands[i]];
+                    delete state.receivedCommands[commands[i]];
+
+                    for (let j = 0; j < state.handlerRegistry.length; j++) {
+                        state.handlerRegistry[j]();
+                    }
+
+                    if (i % 3 === 0) {
+                        basic.pause(0);
+                    }
+                }
+                // Check if new commands arrived while handlers were running (e.g. after basic.pause).
+                commands = Object.keys(state.receivedCommands);
+            }
+
+            state.processing = false;
+        })
     }
 
     export function onDataReceived(command: string) {
@@ -132,7 +148,9 @@ namespace myController {
             }
         }
 
+        // Last write wins - 
         state.receivedCommands[commandName] = parseFloat(commandValue)
+        processCommands()
     }
 
     // Blocks
@@ -281,17 +299,16 @@ namespace myController {
     //% block="code of %ButtonName"
     //% weight=84
     //% group="Buttons"
-    export function buttonCode(buttonCode: ButtonName) {
-        const nameToCode: { [n: number]: string } = {
-            [ButtonName.ArrowUp]: "up",
-            [ButtonName.ArrowDown]: "down",
-            [ButtonName.ArrowRight]: "right",
-            [ButtonName.ArrowLeft]: "left",
-            [ButtonName.Enter]: "enter",
-            [ButtonName.Space]: "space",
+    export function buttonCode(buttonCode: ButtonName): string {
+        switch (buttonCode) {
+            case ButtonName.ArrowUp: return "up";
+            case ButtonName.ArrowDown: return "down";
+            case ButtonName.ArrowRight: return "right";
+            case ButtonName.ArrowLeft: return "left";
+            case ButtonName.Enter: return "enter";
+            case ButtonName.Space: return "space";
+            default: return "";
         }
-
-        return nameToCode[buttonCode] || ""
     }
 
     /**
@@ -422,16 +439,14 @@ namespace myController {
     //% weight=67
     //% group="Orientation"
     export function orientationChanged(axis: OrientationAxis): boolean {
-        let command = "";
-
+        let command: string;
         switch (axis) {
-            case 1: command = 'ox'; break;
-            case 2: command = 'oy'; break;
-            case 3: command = 'oz'; break;
-            case 4: command = 'oc'; break;
+            case OrientationAxis.X: command = 'ox'; break;
+            case OrientationAxis.Y: command = 'oy'; break;
+            case OrientationAxis.Z: command = 'oz'; break;
+            case OrientationAxis.Compass: command = 'oc'; break;
             default: return false;
         }
-
         return state.receivedCommandName == command;
     }
 
