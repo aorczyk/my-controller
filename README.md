@@ -68,7 +68,11 @@ Returns the name of the most recently received command.
 
 #### `commandValue()`
 
-Returns the value of the most recently received command (for analog inputs).
+Returns the value of the most recently received command as a string.
+
+#### `commandValueAsNumber()`
+
+Returns the numeric value of the most recently received command (for analog inputs).
 
 ### Button Input
 
@@ -218,7 +222,7 @@ Returns `true` if a new value from the right slider has been received.
 myController.useBluetooth()
 myController.onCommandReceived(function () {
     if (myController.rightSliderChanged()) {
-        led.setBrightness(myController.commandValue())
+        led.setBrightness(myController.commandValueAsNumber())
     }
 })
 myController.onSetup(myController.ConfirmationMode.NoRequire, function () {
@@ -310,10 +314,10 @@ Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this
 myController.onCommandReceived(function () {
     led.unplot(ledX, ledY)
     if (myController.rightSliderChanged() || myController.rightJoystickChanged(myController.JoystickDirection.X) || myController.orientationChanged(myController.OrientationAxis.X)) {
-        ledX = myController.commandValue() + 2
+        ledX = myController.commandValueAsNumber() + 2
     }
     if (myController.leftSliderChanged() || myController.rightJoystickChanged(myController.JoystickDirection.Y) || myController.orientationChanged(myController.OrientationAxis.Y)) {
-        ledY = myController.commandValue() + 2
+        ledY = myController.commandValueAsNumber() + 2
     }
     if (myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowDown)) || myController.buttonWasReleased(myController.buttonCode(myController.ButtonName.ArrowUp))) {
         ledY = 2

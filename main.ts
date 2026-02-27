@@ -70,10 +70,10 @@ namespace myController {
 
     class State {
         // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
-        receivedCommands: { [key: string]: number } = {};
+        receivedCommands: { [key: string]: string } = {};
         commandQueue: string[] = []
         receivedCommandName: string;
-        receivedCommandValue: number;
+        receivedCommandValue: string;
 
         // Tracking the current pressed/released state of buttons. For multiple buttons pressed at the same time.
         pressedKeys: { [key: string]: boolean } = {};
@@ -155,15 +155,13 @@ namespace myController {
             commandValue = command.slice(separatorIndex + 1)
         }
 
-        let numericValue = parseFloat(commandValue)
-
         // Add to the queue only if it's a new command
         if (state.receivedCommands[commandName] === undefined) {
             state.commandQueue.push(commandName)
         }
 
         // Overwrite the value (last value wins)
-        state.receivedCommands[commandName] = numericValue
+        state.receivedCommands[commandName] = commandValue
 
         processCommands()
     }
@@ -230,7 +228,7 @@ namespace myController {
      * Returns the name of the most recently received command.
      */
     //% blockId=myController_command_name
-    //% block="command name"
+    //% block="command"
     //% weight=91
     //% group="Commands"
     export function commandName(): string {
@@ -238,14 +236,28 @@ namespace myController {
     }
 
     /**
-     * Returns the value of the most recently received command.
+     * Returns the value of the most recently received command as a string.
      */
     //% blockId=myController_command_value
     //% block="command value"
     //% weight=90
     //% group="Commands"
-    export function commandValue(): number {
+    export function commandValue(): string {
         return state.receivedCommandValue
+    }
+
+    /**
+     * Returns the numeric value of the most recently received command.
+     * For a slider, this is the current slider position.
+     * For a joystick, this is the value of the moved axis (e.g., X or Y).
+     * For orientation, this is the current orientation value sent by the controller.
+     */
+    //% blockId=myController_command_value_as_number
+    //% block="command value as number"
+    //% weight=89
+    //% group="Commands"
+    export function commandValueAsNumber(): number {
+        return parseFloat(state.receivedCommandValue)
     }
 
     /**
@@ -255,7 +267,7 @@ namespace myController {
     //% blockId=myController_button_was_pressed
     //% block="button %button was pressed"
     //% group="Buttons"
-    //% weight=89
+    //% weight=88
     export function buttonWasPressed(buttonCode: string): boolean {
         return state.receivedCommandName == buttonCode && state.pressedKeys[buttonCode];
     }
@@ -267,7 +279,7 @@ namespace myController {
     //% blockId=myController_button_was_released
     //% block="button %button was released"
     //% group="Buttons"
-    //% weight=88
+    //% weight=87
     export function buttonWasReleased(buttonCode: string): boolean {
         return state.receivedCommandName == buttonCode && !state.pressedKeys[buttonCode];
     }
@@ -279,7 +291,7 @@ namespace myController {
     //% blockId=myController_is_button_pressed
     //% block="is button %button pressed"
     //% group="Buttons"
-    //% weight=87
+    //% weight=86
     export function isButtonPressed(buttonCode: string): boolean {
         return state.pressedKeys[buttonCode];
     }
@@ -289,7 +301,7 @@ namespace myController {
      */
     //% blockId=myController_all_buttons_released
     //% block="all buttons released"
-    //% weight=86
+    //% weight=85
     //% group="Buttons"
     export function allButtonsReleased() {
         return state.receivedCommandName == 'none'
@@ -300,7 +312,7 @@ namespace myController {
      */
     //% blockId=myController_no_button_is_pressed
     //% block="no button is pressed"
-    //% weight=85
+    //% weight=84
     //% group="Buttons"
     export function noButtonIsPressed(): boolean {
         return Object.keys(state.pressedKeys).length == 0
@@ -312,7 +324,7 @@ namespace myController {
      */
     //% blockId=myController_button_code
     //% block="code of %ButtonName"
-    //% weight=84
+    //% weight=83
     //% group="Buttons"
     export function buttonCode(buttonCode: ButtonName): string {
         switch (buttonCode) {
@@ -332,7 +344,7 @@ namespace myController {
      */
     //% blockId="myController_toggle_button"
     //% block="toggle button"
-    //% weight=84
+    //% weight=82
     //% group="Buttons"
     export function toggleButton(): boolean {
         if (!state.buttonStates[state.receivedCommandName]) {
@@ -352,7 +364,7 @@ namespace myController {
     //% blockId="myController_next_button_toggle"
     //% block="button toggle count (max %toggleMaxCount)"
     //% toggleMaxCount.defl=1
-    //% weight=83
+    //% weight=81
     //% group="Buttons"
     export function nextButtonToggle(toggleMaxCount: number = 1): number {
         if (state.buttonStates[state.receivedCommandName] == undefined) {
@@ -379,7 +391,7 @@ namespace myController {
     //% blockId="myController_set_button"
     //% block="set button %code to %visibility %color || label %label"
     //% inlineInputMode=inline
-    //% weight=82
+    //% weight=80
     //% expandableArgumentMode="toggle"
     //% code.defl=''
     //% visibility.defl=ButtonVisibility.Visible

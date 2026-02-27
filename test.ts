@@ -421,6 +421,35 @@ testCases.forEach((test) => {
     basic.pause(50)
 })();
 
+(function () {
+    testCaseCounter++;
+    testCaseName = 'Command value vs Command value as number'
+    console.log(testCaseCounter + '. ' + testCaseName)
+
+    output = ''
+    myController.onDataReceived('sr=50')
+    basic.pause(50)
+
+    let commandName = myController.commandName();
+    control.assert(
+        myController.commandName() === "sr",
+        `output: ${commandName}\nexpect: "sr"`
+    )
+
+    let commandValue = myController.commandValue();
+    control.assert(
+        commandValue === "50",
+        `output: ${commandValue}\nexpect: "50"`
+    )
+
+    let commandValueAsNumber = myController.commandValueAsNumber();
+    control.assert(
+        commandValueAsNumber === 50,
+        `output: ${commandValueAsNumber}\nexpect: 50`
+    )
+
+})();
+
 console.log('-------------')
 console.log(`All tests finished (${testCaseCounter})`)
 basic.showIcon(IconNames.Yes)
