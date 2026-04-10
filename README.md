@@ -303,6 +303,55 @@ Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this
 **Parameters:**
 - `data` (string) - The raw command string to send
 
+### Properties
+
+Use properties to persist small values in the controller app (for example selected mode, counters, or user preferences).
+
+#### `setProperty(variableName, variable)`
+
+Stores a property value in the controller app.
+
+**Parameters:**
+- `variableName` (string) - Property key
+- `variable` (string|number) - Property value
+
+#### `getProperty(variableName)`
+
+Requests a property value from the controller app. The returned value is delivered to `onPropertyReceived`.
+
+**Parameters:**
+- `variableName` (string) - Property key to fetch
+
+#### `onPropertyReceived(variableName, handler)`
+
+Runs code when the requested property value is received.
+
+**Parameters:**
+- `variableName` (string) - Property key to listen for
+- `handler` (function) - Code to run after receiving the value
+
+#### `propertyValue()`
+
+Returns the most recently received property value as a string.
+
+#### `propertyValueAsNumber()`
+
+Returns the most recently received property value as a number.
+
+**Example:**
+```typescript
+myController.useBluetooth()
+
+myController.onPropertyReceived("score", function () {
+    basic.showNumber(myController.propertyValueAsNumber())
+})
+
+input.onButtonPressed(Button.A, function () {
+    myController.setProperty("score", 42)
+    myController.getProperty("score")
+})
+```
+
 
 ## 💡 Example
 

@@ -595,7 +595,6 @@ namespace myController {
     //% weight=30
     //% data.defl=''
     //% group="Properties"
-    //% advanced=true
     export function setProperty(variableName: string, variable: string | number) {
         sendData(`setProp;${variableName};${variable};`);
     }
@@ -610,7 +609,6 @@ namespace myController {
     //% weight=29
     //% data.defl=''
     //% group="Properties"
-    //% advanced=true
     export function getProperty(
         variableName: string,
     ) {
@@ -631,7 +629,6 @@ namespace myController {
     //% weight=28
     //% data.defl=''
     //% group="Properties"
-    //% advanced=true
     export function onPropertyReceived(
         variableName: string,
         handler: () => void
@@ -655,7 +652,6 @@ namespace myController {
     //% block="property value"
     //% weight=27
     //% group="Properties"
-    //% advanced=true
     export function propertyValue(): string {
         return state.propertyValue
     }
@@ -667,7 +663,6 @@ namespace myController {
     //% block="property value as number"
     //% weight=26
     //% group="Properties"
-    //% advanced=true
     export function propertyValueAsNumber(): number {
         return parseFloat(state.propertyValue);
     }
