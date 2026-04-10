@@ -450,6 +450,22 @@ testCases.forEach((test) => {
 
 })();
 
+(function () {
+    testCaseCounter++;
+    testCaseName = 'Properties'
+    console.log(testCaseCounter + '. ' + testCaseName)
+    myController.onPropertyReceived("test", function () {
+        control.assert(
+            myController.propertyValueAsNumber() === 1,
+            `output: ${myController.propertyValueAsNumber()}\nexpect: 1`
+        )
+    })
+    myController.onDataReceived('-v')
+    myController.onDataReceived("prop;test;1")
+    basic.pause(50)
+})();
+
+
 console.log('-------------')
 console.log(`All tests finished (${testCaseCounter})`)
 basic.showIcon(IconNames.Yes)
