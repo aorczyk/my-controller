@@ -8,7 +8,7 @@
 
 ![works with micro:bit V2 only image](https://cdn.makecode.com/blob/30d18bf3cc6857f2d1cc6cb675b8c7ad432b202a/static/v2/v2-only.png)
 
-Using these blocks requires the micro:bit V2 hardware. If you use any blocks that attempt access flash memory on a micro:bit v1 board, you will see the 927 error code on the screen.
+Using these blocks requires the micro:bit V2 hardware. If you use any blocks that attempt access flash memory on a micro:bit v1 board, you will see the **927** error code on the screen.
 
 ### ~
 
