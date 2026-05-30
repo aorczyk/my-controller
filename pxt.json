@@ -1,6 +1,6 @@
 {
     "name": "my-controller",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "description": "Control your micro:bit using the \"my micro:bit\" app. micro:bit V2 only.",
     "license": "MIT",
     "dependencies": {
