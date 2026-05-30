@@ -206,7 +206,7 @@ namespace myController {
      * Initializes Serial (WebUSB) communication with the controller app.
      */
     //% blockId=myController_use_serial
-    //% block="use Serial"
+    //% block="use serial"
     //% weight=99
     //% group="Communication"
     export function useSerial() {
@@ -406,8 +406,8 @@ namespace myController {
     //% weight=80
     //% expandableArgumentMode="toggle"
     //% code.defl=''
-    //% visibility.defl=ButtonVisibility.Visible
-    //% color.defl=ButtonColor.Black
+    //% visibility.defl=myController.ButtonVisibility.Visible
+    //% color.defl=myController.ButtonColor.Black
     //% label.defl=''
     //% group="Buttons"
     export function setButton(
@@ -499,7 +499,7 @@ namespace myController {
     //% blockId="myController_on_setup"
     //% block="on setup %ConfirmationMode"
     //% weight=51
-    //% confirmationMode.defl=ConfirmationMode.Require
+    //% confirmationMode.defl=myController.ConfirmationMode.Require
     //% group="Setup"
     export function onSetup(
         confirmationMode: ConfirmationMode,
@@ -587,7 +587,8 @@ namespace myController {
     /**
      * Stores a state value in the controller app. This can be used to keep track of toggle states,
      * counters, or other variables that need to persist across different parts of your program.
-     * @param data the state value to store
+     * @param variableName the name of the state value to store
+     * @param variable the value to store
      */
     //% blockId="myController_set_property"
     //% block="set property %variableName to %variable"
@@ -622,6 +623,7 @@ namespace myController {
     /**
      * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
      * @param variableName the name of the state value to retrieve
+     * @param handler code to run when the property value is received
      */
     //% blockId="myController_on_property_received"
     //% block="on property %variableName received"
