@@ -203,7 +203,7 @@ namespace myController {
     }
 
     /**
-     * Initializes Serial (WebUSB) communication with the controller app.
+     * Initializes serial (WebUSB) communication with the controller app.
      */
     //% blockId=myController_use_serial
     //% block="use serial"

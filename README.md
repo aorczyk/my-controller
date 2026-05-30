@@ -2,8 +2,15 @@
 
 > Control your BBC micro:bit wirelessly via Bluetooth or USB from an app [my micro:bit](https://mymicrobit.medlight.pl/)
 
-> [!NOTE]
-> Works with micro:bit V2 only!
+### ~ reminder
+
+#### Works with micro:bit V2
+
+![works with micro:bit V2 only image](https://cdn.makecode.com/blob/30d18bf3cc6857f2d1cc6cb675b8c7ad432b202a/static/v2/v2-only.png)
+
+Using these blocks requires the micro:bit V2 hardware. If you use any blocks that attempt access flash memory on a micro:bit v1 board, you will see the 927 error code on the screen.
+
+### ~
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![micro:bit](https://img.shields.io/badge/micro%3Abit-v2-blue)](https://microbit.org/)
