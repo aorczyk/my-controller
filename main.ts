@@ -536,7 +536,7 @@ namespace myController {
      * @param data commands exported from the controller settings page
      */
     //% blockId="myController_apply_settings"
-    //% block="apply settings %data"
+    //% block="import settings %data"
     //% inlineInputMode=inline
     //% weight=50
     //% data.defl=''
