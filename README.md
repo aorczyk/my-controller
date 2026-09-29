@@ -310,6 +310,51 @@ Sends a raw data command to the controller app via Bluetooth or WebUSB. Use this
 **Parameters:**
 - `data` (string) - The raw command string to send
 
+### LEGO Hub
+
+Control motors and the status LED of a LEGO Hub connected to the controller app. Requires LEGO Hub support to be enabled and a hub connected in the app (**Settings** → **Other** → **LEGO Hub**).
+
+#### `setLegoHubMotorPower(port, power)`
+
+Sets the motor power on the specified LEGO Hub port. Use a negative value to run the motor in the reverse direction.
+
+**Parameters:**
+- `port` (LegoHubPort) - `A`, `B`, `C`, or `D`
+- `power` (number) - Motor power, from -100 to 100
+
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.setLegoHubMotorPower(myController.LegoHubPort.A, 50)
+```
+
+#### `setLegoHubMotorAngle(port, angle)`
+
+Moves the motor on the specified LEGO Hub port to an absolute angle. Use a negative value to approach the angle from the reverse direction.
+
+**Parameters:**
+- `port` (LegoHubPort) - `A`, `B`, `C`, or `D`
+- `angle` (number) - Target angle, in degrees
+
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.setLegoHubMotorAngle(myController.LegoHubPort.B, 90)
+```
+
+#### `setLegoHubLed(color)`
+
+Sets the color of the LEGO Hub status LED.
+
+**Parameters:**
+- `color` (LegoHubLedColor) - `Off`, `Pink`, `Purple`, `Blue`, `LightBlue`, `Cyan`, `Green`, `Yellow`, `Orange`, `Red`, or `White`
+
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.setLegoHubLed(myController.LegoHubLedColor.Red)
+```
+
 ### Properties
 
 Use properties to persist small values in the controller app (for example selected mode, counters, or user preferences).

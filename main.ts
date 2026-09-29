@@ -68,6 +68,42 @@ namespace myController {
         NoRequire = 0,
     }
 
+    export const enum LegoHubPort {
+        //% block="A"
+        A = 1,
+        //% block="B"
+        B = 2,
+        //% block="C"
+        C = 3,
+        //% block="D"
+        D = 4,
+    }
+
+    export const enum LegoHubLedColor {
+        //% block="off"
+        Off = 0,
+        //% block="pink"
+        Pink = 1,
+        //% block="purple"
+        Purple = 2,
+        //% block="blue"
+        Blue = 3,
+        //% block="light blue"
+        LightBlue = 4,
+        //% block="cyan"
+        Cyan = 5,
+        //% block="green"
+        Green = 6,
+        //% block="yellow"
+        Yellow = 7,
+        //% block="orange"
+        Orange = 8,
+        //% block="red"
+        Red = 9,
+        //% block="white"
+        White = 10,
+    }
+
     class State {
         // Handling fast changing commands from sliders, joysticks, and orientation. When multiple commands are received quickly, we store only the latest value for each command. Then we process them one by one in the onCommand handler. This ensures we always have the most recent state for each input. Works better than an array queue.
         receivedCommands: { [key: string]: string } = {};
@@ -583,6 +619,62 @@ namespace myController {
         }
     }
 
+
+    function legoHubPortCode(port: LegoHubPort): string {
+        switch (port) {
+            case LegoHubPort.A: return "A";
+            case LegoHubPort.B: return "B";
+            case LegoHubPort.C: return "C";
+            case LegoHubPort.D: return "D";
+            default: return "";
+        }
+    }
+
+    /**
+     * Sets the LEGO Hub motor power on the specified port.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * Use a negative value to run the motor in the reverse direction.
+     * @param port the LEGO Hub motor port
+     * @param power the motor power, from -100 to 100
+     */
+    //% blockId="myController_set_lego_hub_motor_power"
+    //% block="set LEGO Hub motor %port power %power"
+    //% inlineInputMode=inline
+    //% weight=45
+    //% power.min=-100 power.max=100
+    //% group="LEGO Hub"
+    export function setLegoHubMotorPower(port: LegoHubPort, power: number) {
+        sendData(`lh_com=${legoHubPortCode(port)},power,1;${power}`);
+    }
+
+    /**
+     * Moves the LEGO Hub motor on the specified port to an absolute angle.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * Use a negative value to approach the angle from the reverse direction.
+     * @param port the LEGO Hub motor port
+     * @param angle the target angle, in degrees
+     */
+    //% blockId="myController_set_lego_hub_motor_angle"
+    //% block="set LEGO Hub motor %port angle %angle"
+    //% inlineInputMode=inline
+    //% weight=44
+    //% group="LEGO Hub"
+    export function setLegoHubMotorAngle(port: LegoHubPort, angle: number) {
+        sendData(`lh_com=${legoHubPortCode(port)},angle,1;${angle}`);
+    }
+
+    /**
+     * Sets the color of the LEGO Hub status LED.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * @param color the LED color
+     */
+    //% blockId="myController_set_lego_hub_led"
+    //% block="set LEGO Hub LED to %color"
+    //% weight=43
+    //% group="LEGO Hub"
+    export function setLegoHubLed(color: LegoHubLedColor) {
+        sendData(`lh_com=led;${color}`);
+    }
 
     /**
      * Stores a state value in the controller app. This can be used to keep track of toggle states,
