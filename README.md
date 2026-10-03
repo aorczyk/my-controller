@@ -139,6 +139,29 @@ Returns `true` when all buttons have been released.
 
 Returns `true` if no button is currently being pressed.
 
+### LEGO Powered UP Remote Buttons
+
+Connect the LEGO Powered UP Remote in the controller app and enable Bluetooth or serial communication in the MakeCode program. The extension recognizes the remote's left/right `Plus`, `Minus`, and `Stop` buttons.
+
+Use `PoweredUpRemoteButton` to select a button with these functions:
+
+- `poweredUpRemoteButtonWasPressed(button)` - `true` for the press event.
+- `poweredUpRemoteButtonWasReleased(button)` - `true` for the release event.
+- `isPoweredUpRemoteButtonPressed(button)` - `true` while the button is held.
+
+**Example:**
+```typescript
+myController.useBluetooth()
+myController.onCommandReceived(function () {
+    if (myController.poweredUpRemoteButtonWasPressed(myController.PoweredUpRemoteButton.LeftPlus)) {
+        led.plot(2, 2)
+    }
+    if (myController.poweredUpRemoteButtonWasReleased(myController.PoweredUpRemoteButton.LeftPlus)) {
+        led.unplot(2, 2)
+    }
+})
+```
+
 #### `buttonCode(buttonName)`
 
 Returns the string code for special keys.
@@ -328,19 +351,64 @@ myController.useBluetooth()
 myController.setLegoHubMotorPower(myController.LegoHubPort.A, 50)
 ```
 
-#### `setLegoHubMotorAngle(port, angle)`
+#### `setLegoHubMotorSpeed(port, speed, maxPower, rampProfile)`
+
+Runs the motor continuously at a regulated speed.
+
+**Parameters:**
+- `port` (`LegoHubPort`) - `A`, `B`, `C`, or `D`
+- `speed` (number) - Target speed, from -100 to 100
+- `maxPower` (number, optional; default: 100) - Maximum motor power, from 0 to 100
+- `rampProfile` (`LegoHubRampProfile`, optional; default: `ControllerDefault`) - Ramp profile to use
+
+#### `runLegoHubMotorForTime(port, timeMs, speed, maxPower, endState, rampProfile)`
+
+Runs the motor at a selected speed for a fixed duration.
+
+**Parameters:**
+- `port` (`LegoHubPort`) - `A`, `B`, `C`, or `D`
+- `timeMs` (number) - Duration in milliseconds, from 1 to 65,535
+- `speed` (number, optional; default: 60) - Target speed, from -100 to 100
+- `maxPower` (number, optional; default: 100) - Maximum motor power, from 0 to 100
+- `endState` (`LegoHubEndState`, optional; default: `Default`) - Action after movement: hold position, float, or brake
+- `rampProfile` (`LegoHubRampProfile`, optional; default: `ControllerDefault`) - Ramp profile to use
+
+#### `setLegoHubMotorAngle(port, angle, speed, maxPower, endState, rampProfile)`
 
 Moves the motor on the specified LEGO Hub port to an absolute angle. Use a negative value to approach the angle from the reverse direction.
 
 **Parameters:**
 - `port` (LegoHubPort) - `A`, `B`, `C`, or `D`
 - `angle` (number) - Target angle, in degrees
+- `speed` (number, optional; default: 100) - Target speed, from -100 to 100
+- `maxPower` (number, optional; default: 100) - Maximum motor power, from 0 to 100
+- `endState` (`LegoHubEndState`, optional; default: `Default`) - Action after movement
+- `rampProfile` (`LegoHubRampProfile`, optional; default: `ControllerDefault`) - Ramp profile to use
 
 **Example:**
 ```typescript
 myController.useBluetooth()
 myController.setLegoHubMotorAngle(myController.LegoHubPort.B, 90)
 ```
+
+#### `runLegoHubMotorAngle(port, angle, speed, maxPower, endState, rampProfile)`
+
+Runs the motor by a relative angle. Use a negative angle to run it in reverse.
+
+**Parameters:**
+- `port` (`LegoHubPort`) - `A`, `B`, `C`, or `D`
+- `angle` (number) - Relative angle, in degrees
+- `speed` (number, optional; default: 60) - Target speed, from -100 to 100
+- `maxPower` (number, optional; default: 100) - Maximum motor power, from 0 to 100
+- `endState` (`LegoHubEndState`, optional; default: `Default`) - Action after movement
+- `rampProfile` (`LegoHubRampProfile`, optional; default: `ControllerDefault`) - Ramp profile to use
+
+#### `brakeLegoHubMotor(port)`
+
+Brakes the LEGO Hub motor on the specified port.
+
+**Parameters:**
+- `port` (`LegoHubPort`) - `A`, `B`, `C`, or `D`
 
 #### `setLegoHubLed(color)`
 
@@ -354,6 +422,45 @@ Sets the color of the LEGO Hub status LED.
 myController.useBluetooth()
 myController.setLegoHubLed(myController.LegoHubLedColor.Red)
 ```
+
+#### Ramp profiles and end states
+
+`LegoHubEndState` options are `Default`, `Hold`, `Float`, and `Brake`. `Default` uses Hold for timed and angle movements.
+
+`LegoHubRampProfile` options are `ControllerDefault`, `None`, `Acceleration`, `Deceleration`, and `Both`. `ControllerDefault` leaves the profile unset in the command, so the controller app's global LEGO Hub ramp setting is used. If the app is set to **Mode default**, the movement mode's built-in profile is selected. An explicit profile passed to a block overrides the app setting.
+
+The built-in **Mode default** is **Both** for continuous speed, timed movement, and absolute-angle movement; relative-angle movement defaults to **None**.
+
+The app's main LEGO Hub settings configure acceleration and deceleration ramp durations (0 to 65,535 ms, default 500 ms). The ramp profile selects which durations are used; it does not set their duration.
+
+**Example with optional parameters:**
+```typescript
+myController.runLegoHubMotorForTime(
+    myController.LegoHubPort.A,
+    1000,
+    60,
+    100,
+    myController.LegoHubEndState.Hold,
+    myController.LegoHubRampProfile.Both
+)
+```
+
+    ### LEGO Powered UP Remote
+
+    The LEGO Powered UP Remote must be connected in the controller app before using this block.
+
+    #### `setPoweredUpRemoteLed(color)`
+
+    Sets the color of the Powered UP Remote status LED.
+
+    **Parameters:**
+    - `color` (`LegoHubLedColor`) - `Off`, `Pink`, `Purple`, `Blue`, `LightBlue`, `Cyan`, `Green`, `Yellow`, `Orange`, `Red`, or `White`
+
+    **Example:**
+    ```typescript
+    myController.useBluetooth()
+    myController.setPoweredUpRemoteLed(myController.LegoHubLedColor.Red)
+    ```
 
 ### Properties
 

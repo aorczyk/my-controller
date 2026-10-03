@@ -23,6 +23,21 @@ namespace myController {
         Space = 6,
     }
 
+    export const enum PoweredUpRemoteButton {
+        //% block="left plus"
+        LeftPlus = 1,
+        //% block="left minus"
+        LeftMinus = 2,
+        //% block="left stop"
+        LeftStop = 3,
+        //% block="right plus"
+        RightPlus = 4,
+        //% block="right minus"
+        RightMinus = 5,
+        //% block="right stop"
+        RightStop = 6,
+    }
+
     export const enum JoystickDirection {
         //% block="x"
         X = 1,
@@ -102,6 +117,30 @@ namespace myController {
         Red = 9,
         //% block="white"
         White = 10,
+    }
+
+    export const enum LegoHubEndState {
+        //% block="default"
+        Default = 3,
+        //% block="hold"
+        Hold = 1,
+        //% block="float"
+        Float = 0,
+        //% block="brake"
+        Brake = 2,
+    }
+
+    export const enum LegoHubRampProfile {
+        //% block="controller default"
+        ControllerDefault = 4,
+        //% block="none"
+        None = 0,
+        //% block="acceleration"
+        Acceleration = 1,
+        //% block="deceleration"
+        Deceleration = 2,
+        //% block="both"
+        Both = 3,
     }
 
     class State {
@@ -387,6 +426,91 @@ namespace myController {
     }
 
     /**
+     * Stores a state value in the controller app. This can be used to keep track of toggle states,
+     * counters, or other variables that need to persist across different parts of your program.
+     * @param variableName the name of the state value to store
+     * @param variable the value to store
+     */
+    //% blockId="myController_set_property"
+    //% block="set property %variableName to %variable"
+    //% inlineInputMode=inline
+    //% weight=30
+    //% data.defl=''
+    //% group="Properties"
+    export function setProperty(variableName: string, variable: string | number) {
+        sendData(`setProp;${variableName};${variable};`);
+    }
+
+    /**
+     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
+     * @param variableName the name of the state value to retrieve
+     */
+    //% blockId="myController_get_property"
+    //% block="get property %variableName"
+    //% inlineInputMode=inline
+    //% weight=29
+    //% data.defl=''
+    //% group="Properties"
+    export function getProperty(
+        variableName: string,
+    ) {
+        initialize()
+
+        state.onConnectedHandlers.push(() => {
+            sendData(`getProp;${variableName};`);
+        });
+    }
+
+    /**
+     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
+     * @param variableName the name of the state value to retrieve
+     * @param handler code to run when the property value is received
+     */
+    //% blockId="myController_on_property_received"
+    //% block="on property %variableName received"
+    //% inlineInputMode=inline
+    //% weight=28
+    //% data.defl=''
+    //% group="Properties"
+    export function onPropertyReceived(
+        variableName: string,
+        handler: () => void
+    ) {
+        initialize()
+
+        state.handlerRegistry.push(() => {
+            let commandParts = state.receivedCommandName.split(';');
+
+            if (commandParts[0] == "prop" && commandParts[1] == variableName) {
+                state.propertyValue = commandParts[2];
+                handler();
+            }
+        });
+    }
+
+    /**
+     * Returns the value of the most recently received property.
+     */
+    //% blockId=myController_property_value
+    //% block="property value"
+    //% weight=27
+    //% group="Properties"
+    export function propertyValue(): string {
+        return state.propertyValue
+    }
+
+    /**
+     * Returns the value of the most recently received property as a number.
+     */
+    //% blockId=myController_property_value_as_number
+    //% block="property value as number"
+    //% weight=26
+    //% group="Properties"
+    export function propertyValueAsNumber(): number {
+        return parseFloat(state.propertyValue);
+    }
+
+    /**
      * Toggles the button state. Returns true if the button is now on, false if off.
      * Each function call switches the button state.
      */
@@ -630,6 +754,26 @@ namespace myController {
         }
     }
 
+    function legoHubEndStateCode(endState: LegoHubEndState): string {
+        return endState == LegoHubEndState.Default ? "" : `${endState}`;
+    }
+
+    function legoHubRampProfileCode(profile: LegoHubRampProfile): string {
+        return profile == LegoHubRampProfile.ControllerDefault ? "" : `${profile}`;
+    }
+
+    function sendLegoHubMotorCommand(
+        port: LegoHubPort,
+        mode: string,
+        value: number,
+        speed: number | string,
+        maxPower: number | string,
+        endState: LegoHubEndState,
+        rampProfile: LegoHubRampProfile,
+    ) {
+        sendData(`lh_com=${legoHubPortCode(port)},${mode},1,${speed},${maxPower},${legoHubEndStateCode(endState)},${legoHubRampProfileCode(rampProfile)};${value}`);
+    }
+
     /**
      * Sets the LEGO Hub motor power on the specified port.
      * Requires LEGO Hub support to be enabled and connected in the controller app.
@@ -640,11 +784,72 @@ namespace myController {
     //% blockId="myController_set_lego_hub_motor_power"
     //% block="set LEGO Hub motor %port power %power"
     //% inlineInputMode=inline
-    //% weight=45
+    //% weight=25
     //% power.min=-100 power.max=100
     //% group="LEGO Hub"
     export function setLegoHubMotorPower(port: LegoHubPort, power: number) {
         sendData(`lh_com=${legoHubPortCode(port)},power,1;${power}`);
+    }
+
+    /**
+     * Sets the LEGO Hub motor speed on the specified port.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * @param port the LEGO Hub motor port
+     * @param speed the target speed, from -100 to 100
+     * @param maxPower the optional maximum power, from 0 to 100
+     * @param rampProfile the optional acceleration/deceleration profile
+     */
+    //% blockId="myController_set_lego_hub_motor_speed"
+    //% block="set LEGO Hub motor %port speed %speed || max power %maxPower ramp %rampProfile"
+    //% inlineInputMode=inline
+    //% expandableArgumentMode="toggle"
+    //% weight=24
+    //% speed.min=-100 speed.max=100
+    //% maxPower.min=0 maxPower.max=100
+    //% maxPower.defl=100
+    //% rampProfile.defl=myController.LegoHubRampProfile.ControllerDefault
+    //% group="LEGO Hub"
+    export function setLegoHubMotorSpeed(
+        port: LegoHubPort,
+        speed: number,
+        maxPower: number = 100,
+        rampProfile: LegoHubRampProfile = 4,
+    ) {
+        sendLegoHubMotorCommand(port, "speed", speed, "", maxPower, 3, rampProfile);
+    }
+
+    /**
+     * Runs the LEGO Hub motor at a speed for a fixed duration.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * @param port the LEGO Hub motor port
+     * @param timeMs the duration in milliseconds, from 1 to 65,535
+     * @param speed the optional target speed, from -100 to 100
+     * @param maxPower the optional maximum power, from 0 to 100
+     * @param endState the optional action after the movement
+     * @param rampProfile the optional acceleration/deceleration profile
+     */
+    //% blockId="myController_run_lego_hub_motor_for_time"
+    //% block="run LEGO Hub motor %port for %timeMs ms || speed %speed max power %maxPower end state %endState ramp %rampProfile"
+    //% inlineInputMode=inline
+    //% expandableArgumentMode="toggle"
+    //% weight=23
+    //% timeMs.min=1 timeMs.max=65535
+    //% speed.min=-100 speed.max=100
+    //% speed.defl=60
+    //% maxPower.min=0 maxPower.max=100
+    //% maxPower.defl=100
+    //% endState.defl=myController.LegoHubEndState.Default
+    //% rampProfile.defl=myController.LegoHubRampProfile.ControllerDefault
+    //% group="LEGO Hub"
+    export function runLegoHubMotorForTime(
+        port: LegoHubPort,
+        timeMs: number,
+        speed: number = 60,
+        maxPower: number = 100,
+        endState: LegoHubEndState = 3,
+        rampProfile: LegoHubRampProfile = 4,
+    ) {
+        sendLegoHubMotorCommand(port, "speedForTime", timeMs, speed, maxPower, endState, rampProfile);
     }
 
     /**
@@ -653,14 +858,78 @@ namespace myController {
      * Use a negative value to approach the angle from the reverse direction.
      * @param port the LEGO Hub motor port
      * @param angle the target angle, in degrees
+     * @param speed the optional target speed, from -100 to 100
+     * @param maxPower the optional maximum power, from 0 to 100
+     * @param endState the optional action after the movement
+     * @param rampProfile the optional acceleration/deceleration profile
      */
     //% blockId="myController_set_lego_hub_motor_angle"
-    //% block="set LEGO Hub motor %port angle %angle"
+    //% block="set LEGO Hub motor %port angle %angle || speed %speed max power %maxPower end state %endState ramp %rampProfile"
     //% inlineInputMode=inline
-    //% weight=44
+    //% expandableArgumentMode="toggle"
+    //% weight=22
+    //% speed.min=-100 speed.max=100
+    //% speed.defl=100
+    //% maxPower.min=0 maxPower.max=100
+    //% maxPower.defl=100
+    //% endState.defl=myController.LegoHubEndState.Default
+    //% rampProfile.defl=myController.LegoHubRampProfile.ControllerDefault
     //% group="LEGO Hub"
-    export function setLegoHubMotorAngle(port: LegoHubPort, angle: number) {
-        sendData(`lh_com=${legoHubPortCode(port)},angle,1;${angle}`);
+    export function setLegoHubMotorAngle(
+        port: LegoHubPort,
+        angle: number,
+        speed: number = 100,
+        maxPower: number = 100,
+        endState: LegoHubEndState = 3,
+        rampProfile: LegoHubRampProfile = 4,
+    ) {
+        sendLegoHubMotorCommand(port, "angle", angle, speed, maxPower, endState, rampProfile);
+    }
+
+    /**
+     * Runs the LEGO Hub motor on the specified port for a relative angle.
+     * Requires LEGO Hub support to be enabled and connected in the controller app.
+     * Use a negative value to run the motor in the reverse direction.
+     * @param port the LEGO Hub motor port
+     * @param angle the relative angle to run, in degrees
+     * @param speed the optional target speed, from -100 to 100
+     * @param maxPower the optional maximum power, from 0 to 100
+     * @param endState the optional action after the movement
+     * @param rampProfile the optional acceleration/deceleration profile
+     */
+    //% blockId="myController_run_lego_hub_motor_angle"
+    //% block="run LEGO Hub motor %port by angle %angle || speed %speed max power %maxPower end state %endState ramp %rampProfile"
+    //% inlineInputMode=inline
+    //% expandableArgumentMode="toggle"
+    //% weight=21
+    //% speed.min=-100 speed.max=100
+    //% speed.defl=60
+    //% maxPower.min=0 maxPower.max=100
+    //% maxPower.defl=100
+    //% endState.defl=myController.LegoHubEndState.Default
+    //% rampProfile.defl=myController.LegoHubRampProfile.ControllerDefault
+    //% group="LEGO Hub"
+    export function runLegoHubMotorAngle(
+        port: LegoHubPort,
+        angle: number,
+        speed: number = 60,
+        maxPower: number = 100,
+        endState: LegoHubEndState = 3,
+        rampProfile: LegoHubRampProfile = 4,
+    ) {
+        sendLegoHubMotorCommand(port, "runAngle", angle, speed, maxPower, endState, rampProfile);
+    }
+
+    /**
+     * Brakes the LEGO Hub motor on the specified port.
+     * @param port the LEGO Hub motor port
+     */
+    //% blockId="myController_brake_lego_hub_motor"
+    //% block="brake LEGO Hub motor %port"
+    //% weight=20
+    //% group="LEGO Hub"
+    export function brakeLegoHubMotor(port: LegoHubPort) {
+        sendLegoHubMotorCommand(port, "brake", 0, "", "", 3, 4);
     }
 
     /**
@@ -670,94 +939,74 @@ namespace myController {
      */
     //% blockId="myController_set_lego_hub_led"
     //% block="set LEGO Hub LED to %color"
-    //% weight=43
+    //% weight=19
     //% group="LEGO Hub"
     export function setLegoHubLed(color: LegoHubLedColor) {
         sendData(`lh_com=led;${color}`);
     }
 
-    /**
-     * Stores a state value in the controller app. This can be used to keep track of toggle states,
-     * counters, or other variables that need to persist across different parts of your program.
-     * @param variableName the name of the state value to store
-     * @param variable the value to store
-     */
-    //% blockId="myController_set_property"
-    //% block="set property %variableName to %variable"
-    //% inlineInputMode=inline
-    //% weight=30
-    //% data.defl=''
-    //% group="Properties"
-    export function setProperty(variableName: string, variable: string | number) {
-        sendData(`setProp;${variableName};${variable};`);
+    function poweredUpRemoteButtonCode(button: PoweredUpRemoteButton): string {
+        switch (button) {
+            case PoweredUpRemoteButton.LeftPlus: return "leftPlus";
+            case PoweredUpRemoteButton.LeftMinus: return "leftMinus";
+            case PoweredUpRemoteButton.LeftStop: return "leftStop";
+            case PoweredUpRemoteButton.RightPlus: return "rightPlus";
+            case PoweredUpRemoteButton.RightMinus: return "rightMinus";
+            case PoweredUpRemoteButton.RightStop: return "rightStop";
+            default: return "";
+        }
     }
 
     /**
-     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
-     * @param variableName the name of the state value to retrieve
+     * Returns true when the selected LEGO Powered UP Remote button was just pressed.
+     * Requires the Powered UP Remote to be connected in the controller app.
+     * @param button the Powered UP Remote button to check
      */
-    //% blockId="myController_get_property"
-    //% block="get property %variableName"
-    //% inlineInputMode=inline
-    //% weight=29
-    //% data.defl=''
-    //% group="Properties"
-    export function getProperty(
-        variableName: string,
-    ) {
-        initialize()
-
-        state.onConnectedHandlers.push(() => {
-            sendData(`getProp;${variableName};`);
-        });
+    //% blockId=myController_powered_up_remote_button_was_pressed
+    //% block="Powered UP button %button was pressed"
+    //% weight=17
+    //% group="Powered UP Remote"
+    export function poweredUpRemoteButtonWasPressed(button: PoweredUpRemoteButton): boolean {
+        return buttonWasPressed(poweredUpRemoteButtonCode(button));
     }
 
     /**
-     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
-     * @param variableName the name of the state value to retrieve
-     * @param handler code to run when the property value is received
+     * Returns true when the selected LEGO Powered UP Remote button was just released.
+     * Requires the Powered UP Remote to be connected in the controller app.
+     * @param button the Powered UP Remote button to check
      */
-    //% blockId="myController_on_property_received"
-    //% block="on property %variableName received"
-    //% inlineInputMode=inline
-    //% weight=28
-    //% data.defl=''
-    //% group="Properties"
-    export function onPropertyReceived(
-        variableName: string,
-        handler: () => void
-    ) {
-        initialize()
-
-        state.handlerRegistry.push(() => {
-            let commandParts = state.receivedCommandName.split(';');
-
-            if (commandParts[0] == "prop" && commandParts[1] == variableName) {
-                state.propertyValue = commandParts[2];
-                handler();
-            }
-        });
+    //% blockId=myController_powered_up_remote_button_was_released
+    //% block="Powered UP button %button was released"
+    //% weight=16
+    //% group="Powered UP Remote"
+    export function poweredUpRemoteButtonWasReleased(button: PoweredUpRemoteButton): boolean {
+        return buttonWasReleased(poweredUpRemoteButtonCode(button));
     }
 
     /**
-     * Returns the value of the most recently received property.
+     * Returns true while the selected LEGO Powered UP Remote button is held down.
+     * Requires the Powered UP Remote to be connected in the controller app.
+     * @param button the Powered UP Remote button to check
      */
-    //% blockId=myController_property_value
-    //% block="property value"
-    //% weight=27
-    //% group="Properties"
-    export function propertyValue(): string {
-        return state.propertyValue
+    //% blockId=myController_is_powered_up_remote_button_pressed
+    //% block="is Powered UP button %button pressed"
+    //% weight=15
+    //% group="Powered UP Remote"
+    export function isPoweredUpRemoteButtonPressed(button: PoweredUpRemoteButton): boolean {
+        return isButtonPressed(poweredUpRemoteButtonCode(button));
     }
 
     /**
-     * Returns the value of the most recently received property as a number.
+     * Sets the color of the LEGO Powered UP Remote status LED.
+     * Requires the Powered UP Remote to be connected in the controller app.
+     * @param color the remote LED color
      */
-    //% blockId=myController_property_value_as_number
-    //% block="property value as number"
-    //% weight=26
-    //% group="Properties"
-    export function propertyValueAsNumber(): number {
-        return parseFloat(state.propertyValue);
+    //% blockId="myController_set_powered_up_remote_led"
+    //% block="set Powered UP Remote LED to %color"
+    //% weight=18
+    //% group="Powered UP Remote"
+    export function setPoweredUpRemoteLed(color: LegoHubLedColor) {
+        sendData(`pur_led=led;${color}`);
     }
+
 }
