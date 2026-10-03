@@ -426,91 +426,6 @@ namespace myController {
     }
 
     /**
-     * Stores a state value in the controller app. This can be used to keep track of toggle states,
-     * counters, or other variables that need to persist across different parts of your program.
-     * @param variableName the name of the state value to store
-     * @param variable the value to store
-     */
-    //% blockId="myController_set_property"
-    //% block="set property %variableName to %variable"
-    //% inlineInputMode=inline
-    //% weight=30
-    //% data.defl=''
-    //% group="Properties"
-    export function setProperty(variableName: string, variable: string | number) {
-        sendData(`setProp;${variableName};${variable};`);
-    }
-
-    /**
-     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
-     * @param variableName the name of the state value to retrieve
-     */
-    //% blockId="myController_get_property"
-    //% block="get property %variableName"
-    //% inlineInputMode=inline
-    //% weight=29
-    //% data.defl=''
-    //% group="Properties"
-    export function getProperty(
-        variableName: string,
-    ) {
-        initialize()
-
-        state.onConnectedHandlers.push(() => {
-            sendData(`getProp;${variableName};`);
-        });
-    }
-
-    /**
-     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
-     * @param variableName the name of the state value to retrieve
-     * @param handler code to run when the property value is received
-     */
-    //% blockId="myController_on_property_received"
-    //% block="on property %variableName received"
-    //% inlineInputMode=inline
-    //% weight=28
-    //% data.defl=''
-    //% group="Properties"
-    export function onPropertyReceived(
-        variableName: string,
-        handler: () => void
-    ) {
-        initialize()
-
-        state.handlerRegistry.push(() => {
-            let commandParts = state.receivedCommandName.split(';');
-
-            if (commandParts[0] == "prop" && commandParts[1] == variableName) {
-                state.propertyValue = commandParts[2];
-                handler();
-            }
-        });
-    }
-
-    /**
-     * Returns the value of the most recently received property.
-     */
-    //% blockId=myController_property_value
-    //% block="property value"
-    //% weight=27
-    //% group="Properties"
-    export function propertyValue(): string {
-        return state.propertyValue
-    }
-
-    /**
-     * Returns the value of the most recently received property as a number.
-     */
-    //% blockId=myController_property_value_as_number
-    //% block="property value as number"
-    //% weight=26
-    //% group="Properties"
-    export function propertyValueAsNumber(): number {
-        return parseFloat(state.propertyValue);
-    }
-
-    /**
      * Toggles the button state. Returns true if the button is now on, false if off.
      * Each function call switches the button state.
      */
@@ -743,6 +658,90 @@ namespace myController {
         }
     }
 
+    /**
+     * Stores a state value in the controller app. This can be used to keep track of toggle states,
+     * counters, or other variables that need to persist across different parts of your program.
+     * @param variableName the name of the state value to store
+     * @param variable the value to store
+     */
+    //% blockId="myController_set_property"
+    //% block="set property %variableName to %variable"
+    //% inlineInputMode=inline
+    //% weight=30
+    //% data.defl=''
+    //% group="Properties"
+    export function setProperty(variableName: string, variable: string | number) {
+        sendData(`setProp;${variableName};${variable};`);
+    }
+
+    /**
+     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
+     * @param variableName the name of the state value to retrieve
+     */
+    //% blockId="myController_get_property"
+    //% block="get property %variableName"
+    //% inlineInputMode=inline
+    //% weight=29
+    //% data.defl=''
+    //% group="Properties"
+    export function getProperty(
+        variableName: string,
+    ) {
+        initialize()
+
+        state.onConnectedHandlers.push(() => {
+            sendData(`getProp;${variableName};`);
+        });
+    }
+
+    /**
+     * Retrieves a state value from the controller app. Use this block to access values stored with setProperty.
+     * @param variableName the name of the state value to retrieve
+     * @param handler code to run when the property value is received
+     */
+    //% blockId="myController_on_property_received"
+    //% block="on property %variableName received"
+    //% inlineInputMode=inline
+    //% weight=28
+    //% data.defl=''
+    //% group="Properties"
+    export function onPropertyReceived(
+        variableName: string,
+        handler: () => void
+    ) {
+        initialize()
+
+        state.handlerRegistry.push(() => {
+            let commandParts = state.receivedCommandName.split(';');
+
+            if (commandParts[0] == "prop" && commandParts[1] == variableName) {
+                state.propertyValue = commandParts[2];
+                handler();
+            }
+        });
+    }
+
+    /**
+     * Returns the value of the most recently received property.
+     */
+    //% blockId=myController_property_value
+    //% block="property value"
+    //% weight=27
+    //% group="Properties"
+    export function propertyValue(): string {
+        return state.propertyValue
+    }
+
+    /**
+     * Returns the value of the most recently received property as a number.
+     */
+    //% blockId=myController_property_value_as_number
+    //% block="property value as number"
+    //% weight=26
+    //% group="Properties"
+    export function propertyValueAsNumber(): number {
+        return parseFloat(state.propertyValue);
+    }
 
     function legoHubPortCode(port: LegoHubPort): string {
         switch (port) {
