@@ -292,6 +292,7 @@ namespace myController {
         serial.setTxBufferSize(240)
         serial.setRxBufferSize(240)
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            state.receivedSerial = true;
             onDataReceived(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
         })
     }
