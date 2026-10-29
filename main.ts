@@ -770,7 +770,7 @@ namespace myController {
         endState: LegoHubEndState,
         rampProfile: LegoHubRampProfile,
     ) {
-        sendData(`lh_com=${legoHubPortCode(port)},${mode},1,${speed},${maxPower},${legoHubEndStateCode(endState)},${legoHubRampProfileCode(rampProfile)};${value}`);
+        sendData(`lh_com_${legoHubPortCode(port)}=${legoHubPortCode(port)},${mode},1,${speed},${maxPower},${legoHubEndStateCode(endState)},${legoHubRampProfileCode(rampProfile)};${value}`);
     }
 
     /**
@@ -787,7 +787,7 @@ namespace myController {
     //% power.min=-100 power.max=100
     //% group="LEGO Hub"
     export function setLegoHubMotorPower(port: LegoHubPort, power: number) {
-        sendData(`lh_com=${legoHubPortCode(port)},power,1;${power}`);
+        sendData(`lh_com_${legoHubPortCode(port)}=${legoHubPortCode(port)},power,1;${power}`);
     }
 
     /**
@@ -828,7 +828,7 @@ namespace myController {
      * @param rampProfile the optional acceleration/deceleration profile
      */
     //% blockId="myController_run_lego_hub_motor_for_time"
-    //% block="run LEGO Hub motor %port for %timeMs ms || speed %speed max power %maxPower end state %endState ramp %rampProfile"
+    //% block="run LEGO Hub motor %port for %timeMs ms speed %speed || max power %maxPower end state %endState ramp %rampProfile"
     //% inlineInputMode=inline
     //% expandableArgumentMode="toggle"
     //% weight=23
@@ -863,7 +863,7 @@ namespace myController {
      * @param rampProfile the optional acceleration/deceleration profile
      */
     //% blockId="myController_set_lego_hub_motor_angle"
-    //% block="set LEGO Hub motor %port angle %angle || speed %speed max power %maxPower end state %endState ramp %rampProfile"
+    //% block="set LEGO Hub motor %port angle %angle speed %speed || max power %maxPower end state %endState ramp %rampProfile"
     //% inlineInputMode=inline
     //% expandableArgumentMode="toggle"
     //% weight=22
@@ -897,7 +897,7 @@ namespace myController {
      * @param rampProfile the optional acceleration/deceleration profile
      */
     //% blockId="myController_run_lego_hub_motor_angle"
-    //% block="run LEGO Hub motor %port by angle %angle || speed %speed max power %maxPower end state %endState ramp %rampProfile"
+    //% block="run LEGO Hub motor %port by angle %angle speed %speed || max power %maxPower end state %endState ramp %rampProfile"
     //% inlineInputMode=inline
     //% expandableArgumentMode="toggle"
     //% weight=21
@@ -941,7 +941,7 @@ namespace myController {
     //% weight=19
     //% group="LEGO Hub"
     export function setLegoHubLed(color: LegoHubLedColor) {
-        sendData(`lh_com=led;${color}`);
+        sendData(`lh_com_led=led;${color}`);
     }
 
     function poweredUpRemoteButtonCode(button: PoweredUpRemoteButton): string {
